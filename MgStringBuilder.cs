@@ -27,11 +27,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
     /// March 17 Fixed the second case for trailing zeros. 
     /// (its starting to look a bit better) 
     /// ...
-    /// Note ... Just realized as well i might be able to make this operate like a string after all.
-    /// Even though all the guy on stack overflow and i myself initially thought this impossible.
-    /// Im actually thinking the append with overloading can allow this to be done right.
-    /// msg2 = 10 + "some" + "msg" + 1f; 
-    /// ill take a shot at this later on its not that important.
+    /// Performance is about equal to stringbuilder
     /// </summary>
     public sealed class MgStringBuilder
     {
