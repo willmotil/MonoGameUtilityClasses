@@ -7,9 +7,9 @@ Note: (the FrameRate class uses the MgStringBuilder to avoid garbage collections
 Listing...
 
 MgStringBuilder. 
-This class can be used as a replacement for stringbuilder that bypasses garbage creation in monogame.
-This class helps in preventing garbage collections from occuring.
-The class despite the size is highly performant i use this myself constantly.
+This class can be used as a replacement for stringbuilder that allows it to really bypass garbage collections. 
+This class bypasses numeric.ToString() caused garbage collections in C# itself which in turn affect monogame.
+The class despite the size is performant i use this myself constantly.
 
 MgFrameRate.
 This class is used to display framerate.
