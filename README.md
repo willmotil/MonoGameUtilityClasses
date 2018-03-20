@@ -2,6 +2,8 @@
 
 Stand alone utility classes for monogame or c#
 
+Note: (the FrameRate class uses the MgStringBuilder to avoid garbage collections).
+
 Listing...
 
 MgStringBuilder. 
