@@ -5,8 +5,9 @@ using Microsoft.Xna.Framework;
 
 namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
 {
-    /// <summary> Change details
-    /// No garbage stringbuilder
+    /// <summary>
+    /// No garbage stringbuilder William Motill 2017, last fix or change march 20, 2018.
+    /// 
     /// The purpose of this class is to eliminate garbage collections. Performance is to be considered.
     /// While this is not for high precision, ill attempt to get it into reasonable shape over time.
     /// ...
@@ -14,20 +15,31 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
     /// ...
     /// March 13 Added chained append funtionality that was getting annoying not having it.
     /// ...
-    /// March 14 Cut out excess trailing float and double zeros. testing that for now.
-    /// this appears to only be a partial fix for 1 case.
+    /// March 14 Cut out excess trailing float and double zeros.
+    /// this appears to only be a partial fix for case 1.
     /// ...
-    /// March 17 Fixed a major floating point error 
-    /// this fix 
-    /// Shifted the remainder of floats doubles into the higher precision integer range.
-    /// This is my second attempt to fix this. 
-    /// Though it leaves some natural low bit error.
-    /// It appears the higher order bit error is removed with this fix.
+    /// March 17 
+    /// Fixed a major floating point error. 
+    ///  Shifted the remainder of floats doubles into the higher integer range.
+    /// Fixed the second case for trailing zeros. 
+    ///  (its starting to look a bit better) 
     /// ...
-    /// March 17 Fixed the second case for trailing zeros. 
-    /// (its starting to look a bit better) 
+    /// Nov 08 
+    /// Fixed n = -n; 
+    /// when values were negative in float double appends.
+    /// that would to a bug were - integer portions didn't get returned.
     /// ...
-    /// Performance is about equal to stringbuilder
+    /// Dec01 
+    /// yanked some redundant stuff for a duncile swap reference hack.
+    /// ...
+    /// 2018
+    /// ...
+    /// March 18
+    /// Added a Indexer to index into the underlying stringbuilder.
+    /// ...
+    /// March 20
+    /// Added a insert char overload.
+    /// 
     /// </summary>
     public sealed class MgStringBuilder
     {
@@ -35,35 +47,21 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         private static char minus = '-';
         private static char plus = '+';
 
-        // im considering pulling this, 
-        // its a hack solution that can still fail 
-        // for a edge case that is rare.
-        private static StringBuilder last;
-        
         private StringBuilder sb;
-        // this is a property to ensure copy by value reference.
-        // seen summary notes
         /// <summary>
         /// It is recommended you avoid this unless needed. 
         /// it is possible to create garbage with it.
         /// </summary>
         public StringBuilder StringBuilder
         {
-            get 
-            { 
-                return sb; 
-            }
-            private set 
-            { 
-                sb = value; 
-                /*last = sb;*/ 
-            }
+            get { return sb; }
+            private set { if (sb == null) { sb = value; } else { sb.Clear(); sb.Append(value); } }
         }
 
         public int Length
         {
-            get { return StringBuilder.Length; }
-            set { StringBuilder.Length = value; }
+            get { return sb.Length; }
+            set { sb.Length = value; }
         }
         public int Capacity
         {
@@ -81,30 +79,35 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             StringBuilder = StringBuilder;
             if (sb == null) { sb = new StringBuilder(); }
-            //if (last == null) { last = new StringBuilder(); }
         }
         public MgStringBuilder(int capacity)
         {
             StringBuilder = new StringBuilder(capacity);
             if (sb == null) { sb = new StringBuilder(); }
-            //if (last == null) { last = new StringBuilder(); }
         }
         public MgStringBuilder(StringBuilder sb)
         {
             StringBuilder = sb;
             if (sb == null) { sb = new StringBuilder(); }
-            //if (last == null) { last = new StringBuilder(); }
         }
         public MgStringBuilder(string s)
         {
             StringBuilder = new StringBuilder(s);
             if (sb == null) { sb = new StringBuilder(); }
-            //if (last == null) { last = new StringBuilder(); }
         }
-
         public static void CheckSeperator()
         {
             decimalseperator = Convert.ToChar(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+        }
+
+        /// <summary>
+        /// Indexer to chars in the underlying array
+        /// Exceptions index out of bounds
+        /// </summary>
+        public char this[int i]
+        {
+            get { return sb[i]; }
+            set { sb[i] = value; }
         }
 
         // operators
@@ -116,13 +119,11 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             return msb.StringBuilder;
         }
-
         public static MgStringBuilder operator +(MgStringBuilder sbm, MgStringBuilder s)
         {
             sbm.StringBuilder.Append(s);
             return sbm;
         }
-        //test
         public static MgStringBuilder operator +(MgStringBuilder sbm, string s)
         {
             sbm.StringBuilder.Append(s);
@@ -132,18 +133,17 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         public void AppendAt(int index, StringBuilder s)
         {
             int len = this.StringBuilder.Length;
-            int reqcapacity = (index + s.Length + 1) - this.StringBuilder.Capacity;
+            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
             if (reqcapacity > 0)
                 this.StringBuilder.Capacity += reqcapacity;
 
             int initialLength = StringBuilder.Length;
-            //If we append near the end we can run out of space in the for loop. Make sure we are large enough
+            // If we append near the end we can run out of space in the for loop. 
+            // Make sure we allot enough.
             if (StringBuilder.Length < index + s.Length)
-            {
                 StringBuilder.Length = index + s.Length;
-            }
 
-            //If our appendAt is outside the scope we need to add spaces until then
+            // If our appendAt is outside the scope of our current sb's length. We will add spaces.
             if (index > initialLength - 1)
             {
                 for (int j = initialLength - 1; j < index; j++)
@@ -151,7 +151,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
                     StringBuilder[j] = ' ';
                 }
             }
-
+            // perform the append
             for (int i = 0; i < s.Length; i++)
             {
                 this.StringBuilder[i + index] = (char)(s[i]);
@@ -167,7 +167,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
                 this.StringBuilder.Capacity += reqcapacity;
 
             this.StringBuilder.Length = len + s.Length;
-            for(int i = 0;i< s.Length;i++)
+            for (int i = 0; i < s.Length; i++)
             {
                 this.StringBuilder[i + len] = (char)(s[i]);
             }
@@ -360,6 +360,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
                 // Negative.
                 sb.Append(minus);
                 value = -value;
+                n = -n;
             }
             if (value == 0)
             {
@@ -408,7 +409,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             // floating point part now it can have about 28 digits but uh ya.. nooo lol
             place = 1000000;
             // pull decimal to integer digits, based on the number of place digits
-            int dn = (int)( (value - (float)(n) ) * place * 10);
+            int dn = (int)((value - (float)(n)) * place * 10);
             // ... march 17 testing... cut out extra zeros case 1
             if (dn == 0)
             {
@@ -438,7 +439,6 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             }
             return this;
         }
-
         public MgStringBuilder Append(double value)
         {
             // basics
@@ -449,6 +449,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             {
                 sb.Append(minus);
                 value = -value;
+                n = -n;
             }
             if (value == 0) // is Zero
             {
@@ -521,7 +522,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             Append("(");
             Append(value.X);
-            Append(",");
+            Append(", ");
             Append(value.Y);
             Append(")");
             return this;
@@ -530,9 +531,9 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             Append("(");
             Append(value.X);
-            Append(",");
+            Append(", ");
             Append(value.Y);
-            Append(",");
+            Append(", ");
             Append(value.Z);
             Append(")");
             return this;
@@ -541,11 +542,11 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             Append("(");
             Append(value.X);
-            Append(",");
+            Append(", ");
             Append(value.Y);
-            Append(",");
+            Append(", ");
             Append(value.Z);
-            Append(",");
+            Append(", ");
             Append(value.W);
             Append(")");
             return this;
@@ -554,11 +555,11 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             Append("(");
             Append(value.R);
-            Append(",");
+            Append(", ");
             Append(value.G);
-            Append(",");
+            Append(", ");
             Append(value.B);
-            Append(",");
+            Append(", ");
             Append(value.A);
             Append(")");
             return this;
@@ -575,6 +576,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
                 // Negative.
                 sb.Append(minus);
                 value = -value;
+                n = -n;
             }
             if (value == 0)
             {
@@ -653,7 +655,6 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             }
             return this;
         }
-
         public MgStringBuilder AppendTrim(double value)
         {
             // basics
@@ -664,6 +665,7 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             {
                 sb.Append(minus);
                 value = -value;
+                n = -n;
             }
             if (value == 0) // is Zero
             {
@@ -731,12 +733,12 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             }
             return this;
         }
- 
+
         public MgStringBuilder AppendTrim(Vector2 value)
         {
             Append("(");
             AppendTrim(value.X);
-            Append(",");
+            Append(", ");
             AppendTrim(value.Y);
             Append(")");
             return this;
@@ -745,9 +747,9 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             Append("(");
             AppendTrim(value.X);
-            Append(",");
+            Append(", ");
             AppendTrim(value.Y);
-            Append(",");
+            Append(", ");
             AppendTrim(value.Z);
             Append(")");
             return this;
@@ -756,11 +758,11 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
         {
             Append("(");
             AppendTrim(value.X);
-            Append(",");
+            Append(", ");
             AppendTrim(value.Y);
-            Append(",");
+            Append(", ");
             AppendTrim(value.Z);
-            Append(",");
+            Append(", ");
             AppendTrim(value.W);
             Append(")");
             return this;
@@ -784,12 +786,22 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
 
         public MgStringBuilder Insert(int index, StringBuilder s)
         {
-            this.StringBuilder.Insert(index, s);
+            sb.Insert(index, s);
+            return this;
+        }
+        public MgStringBuilder Insert(int index, string s)
+        {
+            sb.Insert(index, s);
+            return this;
+        }
+        public MgStringBuilder Insert(int index, char c)
+        {
+            sb.Insert(index, c);
             return this;
         }
         public MgStringBuilder Remove(int index, int length)
         {
-            this.StringBuilder.Remove(index, length);
+            sb.Remove(index, length);
             return this;
         }
 
@@ -804,4 +816,3 @@ namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
             return sb.ToString();
         }
     }
-}
