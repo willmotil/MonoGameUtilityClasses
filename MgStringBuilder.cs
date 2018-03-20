@@ -3,13 +3,15 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace Microsoft.Xna.Framework //StringBuilder 4th major fix or change
+namespace Microsoft.Xna.Framework 
 {
     /// <summary>
     /// No garbage stringbuilder William Motill 2017, last fix or change march 20, 2018.
     /// 
     /// The purpose of this class is to eliminate garbage collections. Performance is to be considered.
     /// While this is not for high precision, ill attempt to get it into reasonable shape over time.
+    /// This class can be used in place of stringbuilder it was primarily designed for use with monogame.
+    /// To use it as a regular c# class simply remove the vector and color overloads.
     /// ...
     /// Change log 2017
     /// ...
