@@ -330,5 +330,90 @@ namespace Microsoft.Xna.Framework
                 spriteBatch.Draw(dotTexture, RTtoB, c);
             }
         }
+        
+        public class MgTimer
+        {
+            float timenow = 0f;
+            float timelast = 0f;
+            float elapsedTime = 0f;
+
+            float alarmTimer = 0f;
+            float timer = 0;
+            bool timerIsSet = false;
+            bool triggered = false;
+            float lastElapsedTotalTimer = 0f;
+
+            /// <summary>
+            /// Sets the alarm timer 
+            /// </summary>
+            public MgTimer(float setAlarmTimerInSeconds)
+            {
+                if (setAlarmTimerInSeconds == 0f)
+                {
+                    timerIsSet = false;
+                    alarmTimer = float.MinValue;
+                }
+                else
+                {
+                    timerIsSet = true;
+                    alarmTimer = setAlarmTimerInSeconds;
+                }
+            }
+
+            public bool IsAlarmTriggered
+            {
+                get
+                {
+                    if (triggered && timerIsSet)
+                    {
+                        triggered = false; lastElapsedTotalTimer = timer; timer = 0f; return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            public float AlarmLastTimingElapsed
+            {
+                get { return lastElapsedTotalTimer; }
+            }
+            public float AlarmTimerCompletionPercentage
+            {
+                get
+                {
+                    if (timerIsSet)
+                    {
+                        return (timer + float.MinValue) / alarmTimer;
+                    }
+                    else
+                        return 0f;
+
+                }
+            }
+            public float ElapsedTime
+            {
+                get { return elapsedTime; }
+            }
+
+            /// <summary>
+            /// returns the rate of change to 
+            /// </summary>
+            public void Update(GameTime gameTime)
+            {
+                timelast = timenow;
+                timenow = (float)gameTime.TotalGameTime.TotalSeconds;
+                elapsedTime = timenow - timelast;
+                if (alarmTimer < timer)
+                {
+                    triggered = true;
+                }
+                else
+                {
+                    triggered = false;
+                    timer += elapsedTime;
+                }
+            }
+        }
 
 }
