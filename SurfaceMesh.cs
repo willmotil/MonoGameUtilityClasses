@@ -7,7 +7,7 @@ namespace Microsoft.Xna.Framework
 {
     /// <summary>
     /// Will Motill 2016.
-    /// This class provides methods to build indexed triangle meshes from a grid of positional points.
+    /// This class provides methods to build indexed triangle meshes from a grid of positional vectors.
     /// </summary>
     public class SurfaceMesh
     {
