@@ -106,7 +106,7 @@ namespace Microsoft.Xna.Framework
 
         /// <summary>
         /// This method creates smoothed normals from a indexed vertice mesh array.
-        /// This loops thru the index array finding the each triangle connected to a vertice.
+        /// This loops thru the index array finding each triangle connected to a vertice.
         /// It then calculates the normal for those triangles and averages them for the vertice in question.
         /// This method can deal with abritrary numbers of connected triangles 0 to n connections.
         /// </summary>
@@ -150,7 +150,7 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// Draws this surface mesh using user index primitives..
+        /// Draws this surface mesh using draw user index primitives..
         /// Doesn't set effect parameters or tequniques.
         /// </summary>
         public void Draw(GraphicsDevice gd, Effect effect)
