@@ -22,3 +22,8 @@ This class is new, and will probably see many more additions and revisions.
 Unlike measure string this class copys or directly alters a stringbuilder to format it to fit.
 
 <img src="https://raw.githubusercontent.com/willmotil/MonoGameUtilityClasses/master/Picture_Utilitys.png">
+
+SurfaceMesh.
+This class takes a array of vector4's and treats them as if they are to be made into a VertexPositionNormalTexture array.
+It creates the u,v's along the surface proportionally to fit a single texture and creates smooth normals.
+The smooth normals are best used when the surface area has curvature for light reflection.
