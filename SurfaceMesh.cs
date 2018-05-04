@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace SplineSurfaceDemo
+namespace Microsoft.Xna.Framework
 {
     /// <summary>
     /// Will Motill 2016.
