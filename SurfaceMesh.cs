@@ -6,8 +6,9 @@ using Microsoft.Xna.Framework.Input;
 namespace Microsoft.Xna.Framework
 {
     /// <summary>
-    /// Will Motill 2016.
-    /// This class provides methods to build indexed triangle meshes from a grid of positional vectors.
+    /// Will Motill 2016. - 2018
+    /// This class provides methods to build indexed triangle meshes from a grid of positional points.
+    /// It also provides the ability to create smooth normals and generate simple tangents for normal mapping.
     /// </summary>
     public class SurfaceMesh
     {
@@ -17,7 +18,7 @@ namespace Microsoft.Xna.Framework
         public bool invertNormalsOnCreation = false;
         int surfacePointWidth = 0;
 
-        public VertexPositionNormalTexture[] vertices;
+        public VertexPositionNormalTextureTangent[] vertices;
         public int[] indices;
 
         public void CreateSurfaceMesh(Vector4[] inputSurfaceVectors, int w, int h)
@@ -26,14 +27,16 @@ namespace Microsoft.Xna.Framework
             indices = SetUpIndices(w, h);
             vertices = VertexFromVectorArray(w, h, inputSurfaceVectors);
             vertices = CreateSmoothNormals(vertices, indices);
+            CreateTangents();
         }
 
-        public void CreateSurfaceMesh(Vector4[] inputSurfaceVectors, int w, int h, out VertexPositionNormalTexture[] verts, out int[] indexs)
+        public void CreateSurfaceMesh(Vector4[] inputSurfaceVectors, int w, int h, out VertexPositionNormalTextureTangent[] verts, out int[] indexs)
         {
             surfacePointWidth = w;
             indices = SetUpIndices(w, h);
             vertices = VertexFromVectorArray(w, h, inputSurfaceVectors);
             vertices = CreateSmoothNormals(vertices, indices);
+            CreateTangents();
             verts = vertices;
             indexs = indices;
         }
@@ -80,11 +83,11 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// Couldn't really decide if i wanted this method to be public or not.
         /// </summary>
-        VertexPositionNormalTexture[] VertexFromVectorArray(int verts_width, int verts_height, Vector4[] inputSurfaceVectors)
+        VertexPositionNormalTextureTangent[] VertexFromVectorArray(int verts_width, int verts_height, Vector4[] inputSurfaceVectors)
         {
             surfacePointWidth = verts_width;
-            VertexPositionNormalTexture[] MyMeshVertices = new VertexPositionNormalTexture[verts_width * verts_height];
-            vertices = new VertexPositionNormalTexture[verts_width * verts_height];
+            VertexPositionNormalTextureTangent[] MyMeshVertices = new VertexPositionNormalTextureTangent[verts_width * verts_height];
+            vertices = new VertexPositionNormalTextureTangent[verts_width * verts_height];
             for (int y = 0; y < verts_height; y++)
             {
                 for (int x = 0; x < verts_width; x++)
@@ -106,11 +109,11 @@ namespace Microsoft.Xna.Framework
 
         /// <summary>
         /// This method creates smoothed normals from a indexed vertice mesh array.
-        /// This loops thru the index array finding each triangle connected to a vertice.
+        /// This loops thru the index array finding the each triangle connected to a vertice.
         /// It then calculates the normal for those triangles and averages them for the vertice in question.
         /// This method can deal with abritrary numbers of connected triangles 0 to n connections.
         /// </summary>
-        VertexPositionNormalTexture[] CreateSmoothNormals(VertexPositionNormalTexture[] vertices, int[] indexs)
+        VertexPositionNormalTextureTangent[] CreateSmoothNormals(VertexPositionNormalTextureTangent[] vertices, int[] indexs)
         {
             // For each vertice we must calculate the surrounding triangles normals, average them and set the normal.
             int tvertmultiplier = 3;
@@ -149,8 +152,32 @@ namespace Microsoft.Xna.Framework
             return vertices;
         }
 
+        void CreateTangents()
+        {
+            for(int i = 0; i < vertices.Length;i++)
+            {
+                int y = i / surfacePointWidth;
+                int x = i - (y * surfacePointWidth);
+                int up = (y - 1) * surfacePointWidth + x;
+                int down = (y + 1) * surfacePointWidth + x;
+                Vector3 tangent = new Vector3();
+                if(down >= vertices.Length)
+                {
+                    tangent = vertices[up].Position - vertices[i].Position;
+                    tangent.Normalize();
+                    vertices[i].Tangent = tangent;
+                }
+                else
+                {
+                    tangent = vertices[i].Position - vertices[down].Position;
+                    tangent.Normalize();
+                    vertices[i].Tangent = tangent;
+                }
+            }
+        }
+
         /// <summary>
-        /// Draws this surface mesh using draw user index primitives..
+        /// Draws this surface mesh using user index primitives..
         /// Doesn't set effect parameters or tequniques.
         /// </summary>
         public void Draw(GraphicsDevice gd, Effect effect)
@@ -158,8 +185,45 @@ namespace Microsoft.Xna.Framework
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionNormalTexture.VertexDeclaration);
+                gd.DrawUserIndexedPrimitives(PrimitiveType.TriangleList, vertices, 0, vertices.Length, indices, 0, (indices.Length / 3), VertexPositionNormalTextureTangent.VertexDeclaration);
             }
+        }
+
+        public struct VertexPositionNormalTextureTangent : IVertexType
+        {
+            public Vector3 Position;
+            public Vector3 Normal;
+            public Vector2 TextureCoordinate;
+            public Vector3 Tangent;
+
+            public static VertexDeclaration VertexDeclaration = new VertexDeclaration
+            (
+                  new VertexElement(VertexElementByteOffset.PositionStartOffset(), VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+                  new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 0),
+                  new VertexElement(VertexElementByteOffset.OffsetVector2(), VertexElementFormat.Vector2, VertexElementUsage.TextureCoordinate, 0),
+                  new VertexElement(VertexElementByteOffset.OffsetVector3(), VertexElementFormat.Vector3, VertexElementUsage.Normal, 1)
+            );
+            VertexDeclaration IVertexType.VertexDeclaration { get { return VertexDeclaration; } }
+        }
+        /// <summary>
+        /// This is a helper struct for tallying byte offsets
+        /// </summary>
+        public struct VertexElementByteOffset
+        {
+            public static int currentByteSize = 0;
+            [STAThread]
+            public static int PositionStartOffset() { currentByteSize = 0; var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
+            public static int Offset(float n) { var s = sizeof(float); currentByteSize += s; return currentByteSize - s; }
+            public static int Offset(Vector2 n) { var s = sizeof(float) * 2; currentByteSize += s; return currentByteSize - s; }
+            public static int Offset(Color n) { var s = sizeof(int); currentByteSize += s; return currentByteSize - s; }
+            public static int Offset(Vector3 n) { var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
+            public static int Offset(Vector4 n) { var s = sizeof(float) * 4; currentByteSize += s; return currentByteSize - s; }
+
+            public static int OffsetFloat() { var s = sizeof(float); currentByteSize += s; return currentByteSize - s; }
+            public static int OffsetColor() { var s = sizeof(int); currentByteSize += s; return currentByteSize - s; }
+            public static int OffsetVector2() { var s = sizeof(float) * 2; currentByteSize += s; return currentByteSize - s; }
+            public static int OffsetVector3() { var s = sizeof(float) * 3; currentByteSize += s; return currentByteSize - s; }
+            public static int OffsetVector4() { var s = sizeof(float) * 4; currentByteSize += s; return currentByteSize - s; }
         }
     }
 }
