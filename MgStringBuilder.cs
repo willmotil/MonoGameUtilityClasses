@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 namespace Microsoft.Xna.Framework 
 {
     /// <summary>
-    /// No garbage stringbuilder William Motill 2017, last fix or change march 20, 2018.
+    /// No garbage stringbuilder William Motill 2017, last fix or change october 13, 2018.
     /// 
     /// The purpose of this class is to eliminate garbage collections. Performance is to be considered.
     /// While this is not for high precision, ill attempt to get it into reasonable shape over time.
@@ -41,7 +41,9 @@ namespace Microsoft.Xna.Framework
     /// ...
     /// March 20
     /// Added a insert char overload.
-    /// 
+    /// ...
+    /// Octob 13 
+    /// Appendline was adding the new line to the beginning not the end.
     /// </summary>
     public sealed class MgStringBuilder
     {
@@ -772,13 +774,13 @@ namespace Microsoft.Xna.Framework
 
         public void AppendLine(StringBuilder s)
         {
-            sb.AppendLine();
             Append(s);
+            sb.AppendLine();
         }
         public void AppendLine(string s)
         {
-            sb.AppendLine();
             sb.Append(s);
+            sb.AppendLine();
         }
         public MgStringBuilder AppendLine()
         {
