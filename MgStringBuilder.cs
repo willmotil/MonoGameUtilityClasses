@@ -142,13 +142,7 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        ///  Caution testing
-        ///  the addition of this operator will allow for a = to be used 
-        ///  MgStringBuilder mysb = "hello"
-        ///  however this is a new assignment.
-        ///  However because this only works for a string assignment i think.
-        ///  However it might not work when you tostring into a string builder
-        ///  
+        /// Allows for assignment, MgStringBuilder mysb = "hello";
         /// </summary>
         public static implicit operator MgStringBuilder(String s)
         {
