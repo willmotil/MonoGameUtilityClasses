@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Microsoft.Xna.Framework
 {
-
     public class MgFrameRate
     {
         MgStringBuilder msg = "";
@@ -13,10 +12,6 @@ namespace Microsoft.Xna.Framework
         MgStringBuilder gcmsg = "";
         Texture2D dotTexture;
         SpriteBatch spriteBatch;
-        // not sure i even want to keep the copys here holding refs to some of these may not be reliable.
-        private Game gameRef;
-        private GraphicsDeviceManager graphics;
-        private GraphicsDevice device;
 
         public bool DisplayFrameRate = true;
         public bool DisplayGarbageCollectionRate = true;
@@ -43,25 +38,20 @@ namespace Microsoft.Xna.Framework
 
         public void LoadSetUp(Game pass_in_this, GraphicsDeviceManager gdm, SpriteBatch spriteBatch, bool allowresizing, bool showmouse, bool fixedon, bool vsync, double desiredFramesPerSecond)
         {
-            gameRef = pass_in_this;
-            graphics = gdm;
-            device = gameRef.GraphicsDevice;
             this.spriteBatch = spriteBatch;
-            dotTexture = TextureDotCreate(gameRef.GraphicsDevice);
-            gameRef.Window.AllowUserResizing = allowresizing;
-            gameRef.IsMouseVisible = showmouse;
-            gameRef.IsFixedTimeStep = fixedon;
+            dotTexture = TextureDotCreate(pass_in_this.GraphicsDevice);
+            pass_in_this.Window.AllowUserResizing = allowresizing;
+            pass_in_this.IsMouseVisible = showmouse;
+            pass_in_this.IsFixedTimeStep = fixedon;
             if (fixedon)
             {
-                gameRef.TargetElapsedTime = TimeSpan.FromSeconds(1d / desiredFramesPerSecond);
+                pass_in_this.TargetElapsedTime = TimeSpan.FromSeconds(1d / desiredFramesPerSecond);
                 //long temp = (long)((1.000000d / desiredFramesPerSecond) * 10000000);// 10000000););
-                //gameRef.TargetElapsedTime = TimeSpan.FromTicks(temp);
+                //pass_in_this.TargetElapsedTime = TimeSpan.FromTicks(temp);
             }
             gdm.SynchronizeWithVerticalRetrace = vsync;
             gdm.ApplyChanges();
         }
-
-
 
         /// <summary>
         /// The msgFrequency here is the reporting time to update the message.
