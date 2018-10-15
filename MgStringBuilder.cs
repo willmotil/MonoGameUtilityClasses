@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace Microsoft.Xna.Framework 
+namespace Microsoft.Xna.Framework
 {
     /// <summary>
     /// No garbage stringbuilder William Motill 2017, last fix or change october 13, 2018.
@@ -29,21 +29,27 @@ namespace Microsoft.Xna.Framework
     /// Nov 08 
     /// Fixed n = -n; 
     /// when values were negative in float double appends.
-    /// that would to a bug were - integer portions didn't get returned.
+    /// that would lead to a bug were - integer portions didn't get returned.
     /// ...
     /// Dec01 
-    /// yanked some redundant stuff for a duncile swap reference hack.
+    /// yanked some redundant stuff for a un-needed reference swap hack.
     /// ...
     /// 2018
     /// ...
     /// March 18
-    /// Added a Indexer to index into the underlying stringbuilder.
+    /// Added a Indexer to index into the underlying stringbuilder to directly access chars.
     /// ...
     /// March 20
     /// Added a insert char overload.
     /// ...
     /// Octob 13 
     /// Appendline was adding the new line to the beginning not the end.
+    /// ...
+    /// Octob 14
+    /// Added a convienience overload to allow a string to be directly set to the class via =
+    /// ...
+    /// Added a method to directly link via reference to the internal string builder this satisfys a usage edge case.
+    /// ...
     /// </summary>
     public sealed class MgStringBuilder
     {
@@ -55,6 +61,7 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// It is recommended you avoid this unless needed. 
         /// it is possible to create garbage with it.
+        /// If for some reason you need to operate on the sb directly use LinkReferenceToStringBuilder
         /// </summary>
         public StringBuilder StringBuilder
         {
@@ -133,6 +140,22 @@ namespace Microsoft.Xna.Framework
             sbm.StringBuilder.Append(s);
             return sbm;
         }
+
+        /// <summary>
+        ///  Caution testing
+        ///  the addition of this operator will allow for a = to be used 
+        ///  MgStringBuilder mysb = "hello"
+        ///  however this is a new assignment.
+        ///  However because this only works for a string assignment i think.
+        ///  However it might not work when you tostring into a string builder
+        ///  
+        /// </summary>
+        public static implicit operator MgStringBuilder(String s)
+        {
+            StringBuilder b = new StringBuilder(s);
+            return new MgStringBuilder(b);
+        }
+
 
         public void AppendAt(int index, StringBuilder s)
         {
@@ -809,6 +832,17 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
+        /// <summary>
+        /// Be careful using this you should understand c# references before doing so.
+        /// Don't pass a stringbuilder to this that you have declared new on.
+        /// Declare StringBuilder refsb;  then pass refsb to this function.
+        /// When you are done with it unlink it by declaring new on it like so, refsb = new StringBuilder();
+        /// </summary>
+        public void LinkReferenceToTheInnerStringBuilder(out StringBuilder rsb)
+        {
+            rsb = sb;
+        }
+
         public char[] ToCharArray()
         {
             char[] a = new char[sb.Length];
@@ -820,3 +854,5 @@ namespace Microsoft.Xna.Framework
             return sb.ToString();
         }
     }
+}
+
