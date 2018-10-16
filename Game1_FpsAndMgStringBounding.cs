@@ -108,7 +108,7 @@ namespace YourNameSpaceHere
             //
             // Repeatedly make a messege every frame.
             //
-            originalText.Length = 0;
+            originalText.Clear();
             var gt = (float)(gameTime.TotalGameTime.TotalSeconds);
             originalText.Append("Hello this is a mgsb test. ").AppendLine("The pupose of which is to demonstrate the fps and text rectangle wrapping functions. ").Append("In a Dynamic context ").AppendTrim(gt);
 
