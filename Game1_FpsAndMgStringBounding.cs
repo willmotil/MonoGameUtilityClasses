@@ -5,10 +5,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
 
-namespace UtilityClassExamples
+namespace YourNameSpaceHere
 {
     /// <summary>
-    /// This is the main type for your game.
+    /// This class demonstrates how to use... 
+    /// The fps class to get information.
+    /// The text bounding class to wrap text.
+    /// The MgStringBuilder class to avoid garbage collections at runtime.
     /// </summary>
     public class Game1 : Game
     {
