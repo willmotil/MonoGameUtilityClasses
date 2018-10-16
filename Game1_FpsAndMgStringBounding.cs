@@ -9,9 +9,9 @@ namespace YourNameSpaceHere
 {
     /// <summary>
     /// This MonoGame class demonstrates how to setup... 
-    /// The fps class and the associated garbage collection rates.
+    /// The MgFrameRate class to see the fps and the associated garbage collection rates.
     /// The text bounding class to wrap text.
-    /// The MgStringBuilder class to avoid garbage collections at runtime.
+    /// The MgStringBuilder class is shown to be used to avoid garbage collections at runtime.
     /// </summary>
     public class Game1 : Game
     {
