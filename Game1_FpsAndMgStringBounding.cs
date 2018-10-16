@@ -21,7 +21,7 @@ namespace YourNameSpaceHere
 
         MgFrameRate fps = new MgFrameRate();
         Rectangle textBoundedArea;
-        MgStringBuilder originalText = "The MgStringBuilder operator overloads allow this";
+        MgStringBuilder originalText = "This is a MgStringBuilder a wrapper around string builder";
 
         public Game1()
         {
