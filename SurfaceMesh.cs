@@ -178,7 +178,7 @@ namespace Microsoft.Xna.Framework
 
         /// <summary>
         /// Draws this surface mesh using user index primitives..
-        /// Doesn't set effect parameters or tequniques.
+        /// Doesn't set effect parameters or techniques.
         /// </summary>
         public void Draw(GraphicsDevice gd, Effect effect)
         {
