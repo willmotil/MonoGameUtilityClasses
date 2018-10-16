@@ -110,7 +110,10 @@ namespace Microsoft.Xna.Framework
         }
 
         // operators
-        
+        public static implicit operator MgStringBuilder(String s)
+        {
+            return new MgStringBuilder(s);
+        }
         public static implicit operator MgStringBuilder(StringBuilder sb)
         {
             return new MgStringBuilder(sb);
