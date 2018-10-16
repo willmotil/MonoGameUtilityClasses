@@ -8,8 +8,8 @@ using System.Collections.Generic;
 namespace YourNameSpaceHere
 {
     /// <summary>
-    /// This class demonstrates how to use... 
-    /// The fps class to get information.
+    /// This class demonstrates how to setup... 
+    /// The fps class and the associated garbage collection rates.
     /// The text bounding class to wrap text.
     /// The MgStringBuilder class to avoid garbage collections at runtime.
     /// </summary>
