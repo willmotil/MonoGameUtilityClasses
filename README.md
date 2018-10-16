@@ -21,7 +21,6 @@ This class (like word wrap) takes a StringBuilder and wraps it to fit into a spe
 This class is new, and will probably see many more additions and revisions.
 Unlike measure string this class copys or directly alters a stringbuilder to format it to fit.
 
-<img src="https://raw.githubusercontent.com/willmotil/MonoGameUtilityClasses/master/Picture_Utilitys.png">
 <img src="https://github.com/willmotil/MonoGameUtilityClasses/blob/master/Images/ExampleFpsMgSbTextBounder.png?raw=true">
 
 
