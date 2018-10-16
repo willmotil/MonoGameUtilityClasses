@@ -32,6 +32,7 @@ Unlike measure string this class copys or directly alters a stringbuilder to for
 
 
 SurfaceMesh.
+
 Still not fully completed as its companion class is not done, who knows if i will ever get it done.
 This class takes a array of vector4's and treats them as if they are to be made into a VertexPositionNormalTexture array.
 It creates the u,v's along the surface proportionally to fit a single texture and creates smooth normals.
