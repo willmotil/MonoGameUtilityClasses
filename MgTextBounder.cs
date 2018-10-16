@@ -80,30 +80,6 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// Set the spritefont this needs to be done before the class is used.
-        /// </summary>
-        public static SpriteFont AlterSpriteFont(SpriteFont sf , char chartoalter, int widthchange)
-        {
-            //SpriteFont sf = s;
-            _glyphs = sf.GetGlyphs();
-            defaultGlyph = new SpriteFont.Glyph();
-            if (sf.DefaultCharacter.HasValue)
-            {
-                defaultfontchar = (char)(sf.DefaultCharacter.Value);
-                defaultGlyph = _glyphs[defaultfontchar];
-            }
-            var altered = _glyphs[chartoalter];
-            altered.Width = widthchange;  // ect 
-            _glyphs.Remove(' ');
-            _glyphs.Add(' ', altered);
-
-            // instead of holding the glyph as i was doing though just drop all the alterd values into a new spritefont
-
-            return sf;
-        }
-
-
-        /// <summary>
         /// This changes the ref stringbuilder by word wrapping it to a bounding box.
         /// </summary>
         public static void WordWrapTextWithinBounds(ref StringBuilder text, Vector2 scale, Rectangle boundRect)
