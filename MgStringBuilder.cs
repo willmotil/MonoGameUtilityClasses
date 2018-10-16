@@ -6,49 +6,37 @@ using Microsoft.Xna.Framework;
 namespace Microsoft.Xna.Framework
 {
     /// <summary>
-    /// No garbage stringbuilder William Motill 2017, last fix or change october 13, 2018.
+    /// No garbage stringbuilder William Motill 2017, last fix or change October 16, 2018.
     /// 
     /// The purpose of this class is to eliminate garbage collections. Performance is to be considered.
     /// While this is not for high precision, ill attempt to get it into reasonable shape over time.
     /// This class can be used in place of stringbuilder it was primarily designed for use with monogame.
     /// To use it as a regular c# class simply remove the vector and color overloads.
+    /// 
     /// ...
     /// Change log 2017
     /// ...
-    /// March 13 Added chained append funtionality that was getting annoying not having it.
-    /// ...
-    /// March 14 Cut out excess trailing float and double zeros.
-    /// this appears to only be a partial fix for case 1.
-    /// ...
-    /// March 17 
-    /// Fixed a major floating point error. 
-    ///  Shifted the remainder of floats doubles into the higher integer range.
-    /// Fixed the second case for trailing zeros. 
-    ///  (its starting to look a bit better) 
-    /// ...
-    /// Nov 08 
-    /// Fixed n = -n; 
-    /// when values were negative in float double appends.
+    /// March to December
+    /// Added chained append funtionality that was getting annoying not having it.
+    /// Cut out excess trailing float and double zeros. This was a partial fix. 
+    /// Fixed a major floating point error.  Shifted the remainder of floats doubles into the higher integer range.
+    /// Fixed a second edge case for trailing zeros.  
+    /// Fixed n = -n;  when values were negative in float double appends.
     /// that would lead to a bug were - integer portions didn't get returned.
-    /// ...
-    /// Dec01 
     /// yanked some redundant stuff for a un-needed reference swap hack.
     /// ...
-    /// 2018
+    ///  Change log  2018
     /// ...
     /// March 18
     /// Added a Indexer to index into the underlying stringbuilder to directly access chars.
-    /// ...
     /// March 20
     /// Added a insert char overload.
-    /// ...
     /// Octob 13 
     /// Appendline was adding the new line to the beginning not the end.
-    /// ...
-    /// Octob 14
-    /// Added a convienience overload to allow a string to be directly set to the class via =
-    /// Added a method to directly link via reference to the internal string builder this satisfys a usage edge case.
-    /// Added a additional AppendAt(index, character) overload will probably at a couple more. 
+    /// Added a method to directly link via reference to the internal string builder this will probably stay in.
+    /// Octob 16
+    /// The original AppendAt was fixed and renamed to OverWriteAt, The new AppendAt's works as a Insert.
+    /// Multiple overloads were added and tested in relation.
     /// ...
     /// </summary>
     public sealed class MgStringBuilder
@@ -61,7 +49,7 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// It is recommended you avoid this unless needed. 
         /// it is possible to create garbage with it.
-        /// If for some reason you need to operate on the sb directly you can optionally get it via LinkReferenceToStringBuilder
+        /// If for some reason you need to operate on the sb directly you can optionally use LinkReferenceToStringBuilder
         /// </summary>
         public StringBuilder StringBuilder
         {
@@ -83,8 +71,23 @@ namespace Microsoft.Xna.Framework
         {
             stringbuilder.Length = 0;
         }
+        public static void CheckSeperator()
+        {
+            decimalseperator = Convert.ToChar(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+        }
+
+        /// <summary>
+        /// Indexer to chars in the underlying array
+        /// Exceptions index out of bounds
+        /// </summary>
+        public char this[int i]
+        {
+            get { return stringbuilder[i]; }
+            set { stringbuilder[i] = value; }
+        }
 
         // constructors
+
         public MgStringBuilder()
         {
             StringBuilder = StringBuilder;
@@ -105,29 +108,9 @@ namespace Microsoft.Xna.Framework
             StringBuilder = new StringBuilder(s);
             if (stringbuilder == null) { stringbuilder = new StringBuilder(); }
         }
-        public static void CheckSeperator()
-        {
-            decimalseperator = Convert.ToChar(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
-        }
 
-        /// <summary>
-        /// Indexer to chars in the underlying array
-        /// Exceptions index out of bounds
-        /// </summary>
-        public char this[int i]
-        {
-            get { return stringbuilder[i]; }
-            set { stringbuilder[i] = value; }
-        }
-
-        //// operators
-        ///// <summary>
-        /////  The addition of this operator allows for an = string assignment to be declared 
-        ///// </summary>
-        //public static implicit operator MgStringBuilder(String s)
-        //{
-        //    return new MgStringBuilder(s);
-        //}
+        // operators
+        
         public static implicit operator MgStringBuilder(StringBuilder sb)
         {
             return new MgStringBuilder(sb);
@@ -147,62 +130,7 @@ namespace Microsoft.Xna.Framework
             return sbm;
         }
 
-
-        public void AppendAt(int index, Char s)
-        {
-            int len = this.StringBuilder.Length;
-            int reqcapacity = (index + 1 + 1) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
-
-            int initialLength = StringBuilder.Length;
-            // If we append near the end we can run out of space in the for loop. 
-            // Make sure we allot enough.
-            if (StringBuilder.Length < index + 1)
-                StringBuilder.Length = index + 1;
-
-            // If our appendAt is outside the scope of our current sb's length. We will add spaces.
-            if (index > initialLength - 1)
-            {
-                for (int j = initialLength - 1; j < index; j++)
-                {
-                    StringBuilder[j] = ' ';
-                }
-            }
-            // perform the append
-            for (int i = 0; i < 1; i++)
-            {
-                this.StringBuilder[i + index] = (char)(s);
-            }
-        }
-
-        public void AppendAt(int index, StringBuilder s)
-        {
-            int len = this.StringBuilder.Length;
-            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
-
-            int initialLength = StringBuilder.Length;
-            // If we append near the end we can run out of space in the for loop. 
-            // Make sure we allot enough.
-            if (StringBuilder.Length < index + s.Length)
-                StringBuilder.Length = index + s.Length;
-
-            // If our appendAt is outside the scope of our current sb's length. We will add spaces.
-            if (index > initialLength - 1)
-            {
-                for (int j = initialLength - 1; j < index; j++)
-                {
-                    StringBuilder[j] = ' ';
-                }
-            }
-            // perform the append
-            for (int i = 0; i < s.Length; i++)
-            {
-                this.StringBuilder[i + index] = (char)(s[i]);
-            }
-        }
+        // Methods
 
         public MgStringBuilder Append(StringBuilder s)
         {
@@ -814,15 +742,17 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
-        public void AppendLine(StringBuilder s)
+        public MgStringBuilder AppendLine(StringBuilder s)
         {
             Append(s);
             stringbuilder.AppendLine();
+            return this;
         }
-        public void AppendLine(string s)
+        public MgStringBuilder AppendLine(string s)
         {
             stringbuilder.Append(s);
             stringbuilder.AppendLine();
+            return this;
         }
         public MgStringBuilder AppendLine()
         {
@@ -830,32 +760,130 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
-        // ---- To Do all the insert functions generate garbage.
-        // I believe the reason for this is not the actual insert function but capacity overflow. Could be wrong.
-        // You can AppendAt no guarentees that it will work in every case though.
+        // these will probably be somewhat slower then appends.
 
         /// <summary>
-        /// Using AppendAt may get around problems with garbage generation.
-        /// I haven't written a AppendAt for every case though.
+        /// Functions just like a indexer.
         /// </summary>
-        public MgStringBuilder Insert(int index, StringBuilder s)
+        public void OverWriteAt(int index, Char s)
         {
-            stringbuilder.Insert(index, s);
-            return this;
-        }
-        public MgStringBuilder Insert(int index, string s)
-        {
-            stringbuilder.Insert(index, s);
-            return this;
+            int reqcapacity = (index + 1 + 1) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity;
+            int initialLength = StringBuilder.Length;
+            for (int i = 0; i < 1; i++)
+                this.StringBuilder[i + index] = (char)(s);
         }
         /// <summary>
-        /// Using AppendAt may get around problems with garbage generation
+        /// Functions to overwrite data at the index on
+        /// </summary>
+        public void OverWriteAt(int index, StringBuilder s)
+        {
+            int len = this.StringBuilder.Length;
+            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity;
+
+            int initialLength = StringBuilder.Length;
+            for (int i = 0; i < s.Length; i++)
+                this.StringBuilder[i + index] = (char)(s[i]);
+        }
+        /// <summary>
+        /// Functions to overwrite data at the index on
+        /// </summary>
+        public void OverWriteAt(int index, String s)
+        {
+            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity;
+            int initialLength = StringBuilder.Length;
+            // perform the append
+            for (int i = 0; i < s.Length; i++)
+                this.StringBuilder[i + index] = (char)(s[i]);
+        }
+
+        /// <summary>
+        /// Functions as a insert, existing text will be moved over.
+        /// </summary>
+        public void AppendAt(int index, Char s)
+        {
+            int reqcapacity = (this.StringBuilder.Length + 1) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity + 32;
+            int initialLength = StringBuilder.Length;
+            StringBuilder.Length = initialLength + 1;
+            for (int j = StringBuilder.Length - 1; j >= index + 1; j--)
+                StringBuilder[j] = StringBuilder[j - 1];
+            for (int i = 0; i < 1; i++)
+                this.StringBuilder[i + index] = (char)(s);
+        }
+        /// <summary>
+        /// Functions as a insert, existing text will be moved over.
+        /// </summary>
+        public void AppendAt(int index, StringBuilder s)
+        {
+            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity + 32;
+            int initialLength = StringBuilder.Length;
+            StringBuilder.Length = initialLength + s.Length;
+            int insertedsbLength = s.Length;
+            for (int j = StringBuilder.Length - 1; j >= index + insertedsbLength; j--)
+                StringBuilder[j] = StringBuilder[j - insertedsbLength];
+            for (int i = 0; i < insertedsbLength; i++)
+            {
+                this.StringBuilder[index + i] = s[i];
+            }
+        }
+        /// <summary>
+        /// Functions as a insert, existing text will be moved over. Notes are left in this method
+        /// </summary>
+        public void AppendAt(int index, String s)
+        {
+            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity + 32;
+            // increase the Length of the stingbuilder by 1
+            int initialLength = StringBuilder.Length;
+            StringBuilder.Length = initialLength + s.Length;
+            // Now we will wind from back to front the current characters in the stringbuilder to make room for this append.
+            // Yes this will be a expensive operation however this must be done if we want a proper AppendAt.
+            int insertedsbLength = s.Length;
+            for (int j = StringBuilder.Length - 1; j >= index + insertedsbLength; j--)
+                StringBuilder[j] = StringBuilder[j - insertedsbLength];
+            // perform the append
+            for (int i = 0; i < insertedsbLength; i++)
+            {
+                this.StringBuilder[index + i] = s[i];
+            }
+        }
+
+        /// <summary>
+        /// This uses AppendAt to get around problems with garbage collections.
         /// </summary>
         public MgStringBuilder Insert(int index, char c)
         {
-            stringbuilder.Insert(index, c);
+            AppendAt(index, c);
             return this;
         }
+        /// <summary>
+        /// This uses AppendAt to get around problems with garbage collections.
+        /// No guarentees but initial tests appear ok
+        /// </summary>
+        public MgStringBuilder Insert(int index, StringBuilder s)
+        {
+            AppendAt(index, s);
+            return this;
+        }
+        /// <summary>
+        /// This uses AppendAt to get around problems with garbage collections.
+        /// </summary>
+        public MgStringBuilder Insert(int index, string s)
+        {
+            AppendAt(index, s);
+            return this;
+        }
+
         public MgStringBuilder Remove(int index, int length)
         {
             stringbuilder.Remove(index, length);
