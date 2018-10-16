@@ -61,7 +61,7 @@ namespace Microsoft.Xna.Framework
         /// <summary>
         /// It is recommended you avoid this unless needed. 
         /// it is possible to create garbage with it.
-        /// If for some reason you need to operate on the sb directly use LinkReferenceToStringBuilder
+        /// If for some reason you need to operate on the sb directly you can optionally get it via LinkReferenceToStringBuilder
         /// </summary>
         public StringBuilder StringBuilder
         {
