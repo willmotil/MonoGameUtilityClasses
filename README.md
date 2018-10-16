@@ -10,7 +10,7 @@ Game1_Fps...
 
 This class shows the usage of the MgFrameRate. MgStringBuilder. MgTextBounder.
 You can put all of these into a MonoGameProject change the namespace for game1 
-Make a font named MgFont and try it out this project was tested under Dx it should work on Gl as well.
+Make a font named MgFont and try it out. This project was tested under Dx it should work on Gl as well.
 
 MgStringBuilder. 
 
