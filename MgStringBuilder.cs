@@ -47,8 +47,8 @@ namespace Microsoft.Xna.Framework
     /// ...
     /// Octob 14
     /// Added a convienience overload to allow a string to be directly set to the class via =
-    /// ...
     /// Added a method to directly link via reference to the internal string builder this satisfys a usage edge case.
+    /// Added a additional AppendAt(index, character) overload will probably at a couple more. 
     /// ...
     /// </summary>
     public sealed class MgStringBuilder
@@ -57,7 +57,7 @@ namespace Microsoft.Xna.Framework
         private static char minus = '-';
         private static char plus = '+';
 
-        private StringBuilder sb;
+        private StringBuilder stringbuilder;
         /// <summary>
         /// It is recommended you avoid this unless needed. 
         /// it is possible to create garbage with it.
@@ -65,14 +65,14 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public StringBuilder StringBuilder
         {
-            get { return sb; }
-            private set { if (sb == null) { sb = value; } else { sb.Clear(); sb.Append(value); } }
+            get { return stringbuilder; }
+            private set { if (stringbuilder == null) { stringbuilder = value; } else { stringbuilder.Clear(); stringbuilder.Append(value); } }
         }
 
         public int Length
         {
-            get { return sb.Length; }
-            set { sb.Length = value; }
+            get { return stringbuilder.Length; }
+            set { stringbuilder.Length = value; }
         }
         public int Capacity
         {
@@ -81,20 +81,19 @@ namespace Microsoft.Xna.Framework
         }
         public void Clear()
         {
-            Length = 0;
-            sb.Length = 0;
+            stringbuilder.Length = 0;
         }
 
         // constructors
         public MgStringBuilder()
         {
             StringBuilder = StringBuilder;
-            if (sb == null) { sb = new StringBuilder(); }
+            if (stringbuilder == null) { stringbuilder = new StringBuilder(); }
         }
         public MgStringBuilder(int capacity)
         {
             StringBuilder = new StringBuilder(capacity);
-            if (sb == null) { sb = new StringBuilder(); }
+            if (stringbuilder == null) { stringbuilder = new StringBuilder(); }
         }
         public MgStringBuilder(StringBuilder sb)
         {
@@ -104,7 +103,7 @@ namespace Microsoft.Xna.Framework
         public MgStringBuilder(string s)
         {
             StringBuilder = new StringBuilder(s);
-            if (sb == null) { sb = new StringBuilder(); }
+            if (stringbuilder == null) { stringbuilder = new StringBuilder(); }
         }
         public static void CheckSeperator()
         {
@@ -117,11 +116,18 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public char this[int i]
         {
-            get { return sb[i]; }
-            set { sb[i] = value; }
+            get { return stringbuilder[i]; }
+            set { stringbuilder[i] = value; }
         }
 
-        // operators
+        //// operators
+        ///// <summary>
+        /////  The addition of this operator allows for an = string assignment to be declared 
+        ///// </summary>
+        //public static implicit operator MgStringBuilder(String s)
+        //{
+        //    return new MgStringBuilder(s);
+        //}
         public static implicit operator MgStringBuilder(StringBuilder sb)
         {
             return new MgStringBuilder(sb);
@@ -141,15 +147,34 @@ namespace Microsoft.Xna.Framework
             return sbm;
         }
 
-        /// <summary>
-        /// Allows for assignment, MgStringBuilder mysb = "hello";
-        /// </summary>
-        public static implicit operator MgStringBuilder(String s)
-        {
-            StringBuilder b = new StringBuilder(s);
-            return new MgStringBuilder(b);
-        }
 
+        public void AppendAt(int index, Char s)
+        {
+            int len = this.StringBuilder.Length;
+            int reqcapacity = (index + 1 + 1) - this.StringBuilder.Capacity;
+            if (reqcapacity > 0)
+                this.StringBuilder.Capacity += reqcapacity;
+
+            int initialLength = StringBuilder.Length;
+            // If we append near the end we can run out of space in the for loop. 
+            // Make sure we allot enough.
+            if (StringBuilder.Length < index + 1)
+                StringBuilder.Length = index + 1;
+
+            // If our appendAt is outside the scope of our current sb's length. We will add spaces.
+            if (index > initialLength - 1)
+            {
+                for (int j = initialLength - 1; j < index; j++)
+                {
+                    StringBuilder[j] = ' ';
+                }
+            }
+            // perform the append
+            for (int i = 0; i < 1; i++)
+            {
+                this.StringBuilder[i + index] = (char)(s);
+            }
+        }
 
         public void AppendAt(int index, StringBuilder s)
         {
@@ -210,14 +235,14 @@ namespace Microsoft.Xna.Framework
             int num = value;
             if (num == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             int place = 100;
             if (num >= place * 10)
             {
                 // just append it
-                sb.Append(num);
+                stringbuilder.Append(num);
                 return this;
             }
             // part 1 pull integer digits
@@ -230,11 +255,11 @@ namespace Microsoft.Xna.Framework
                     int modulator = place * 10;
                     int val = num % modulator;
                     int dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                 }
                 else
                 {
-                    if (addzeros) { sb.Append('0'); }
+                    if (addzeros) { stringbuilder.Append('0'); }
                 }
                 place = (int)(place * .1);
             }
@@ -247,12 +272,12 @@ namespace Microsoft.Xna.Framework
             if (num < 0)
             {
                 // Negative.
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 num = -num;
             }
             if (value == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
 
@@ -260,7 +285,7 @@ namespace Microsoft.Xna.Framework
             if (num >= place * 10)
             {
                 // just append it, if its this big, this isn't a science calculator, its a edge case.
-                sb.Append(num);
+                stringbuilder.Append(num);
                 return this;
             }
             // part 1 pull integer digits
@@ -273,11 +298,11 @@ namespace Microsoft.Xna.Framework
                     int modulator = place * 10;
                     int val = num % modulator;
                     int dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                 }
                 else
                 {
-                    if (addzeros) { sb.Append('0'); }
+                    if (addzeros) { stringbuilder.Append('0'); }
                 }
                 place = (int)(place * .1);
             }
@@ -289,12 +314,12 @@ namespace Microsoft.Xna.Framework
             if (value < 0)
             {
                 // Negative.
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 value = -value;
             }
             if (value == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
 
@@ -302,7 +327,7 @@ namespace Microsoft.Xna.Framework
             if (value >= place * 10)
             {
                 // just append it
-                sb.Append(value);
+                stringbuilder.Append(value);
                 return this;
             }
             // part 1 pull integer digits
@@ -316,11 +341,11 @@ namespace Microsoft.Xna.Framework
                     int modulator = place * 10;
                     int val = n % modulator;
                     int dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                 }
                 else
                 {
-                    if (addzeros) { sb.Append('0'); }
+                    if (addzeros) { stringbuilder.Append('0'); }
                 }
                 place = (int)(place * .1);
             }
@@ -332,12 +357,12 @@ namespace Microsoft.Xna.Framework
             if (value < 0)
             {
                 // Negative.
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 value = -value;
             }
             if (value == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
 
@@ -345,7 +370,7 @@ namespace Microsoft.Xna.Framework
             if (value >= place * 10)
             {
                 // just append it,
-                sb.Append(value);
+                stringbuilder.Append(value);
                 return this;
             }
             // part 1 pull integer digits
@@ -359,11 +384,11 @@ namespace Microsoft.Xna.Framework
                     long modulator = place * 10L;
                     long val = n % modulator;
                     long dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                 }
                 else
                 {
-                    if (addzeros) { sb.Append('0'); }
+                    if (addzeros) { stringbuilder.Append('0'); }
                 }
                 place = (long)(place * .1);
             }
@@ -379,13 +404,13 @@ namespace Microsoft.Xna.Framework
             if (value < 0)
             {
                 // Negative.
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 value = -value;
                 n = -n;
             }
             if (value == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             // fix march 18-17
@@ -397,7 +422,7 @@ namespace Microsoft.Xna.Framework
                 if (value >= place * 10)
                 {
                     // just append it, if its this big its a edge case.
-                    sb.Append(value);
+                    stringbuilder.Append(value);
                     return this;
                 }
                 // part 1 pull integer digits
@@ -411,19 +436,19 @@ namespace Microsoft.Xna.Framework
                         int modulator = place * 10;
                         int val = n % modulator;
                         int dc = val / place;
-                        sb.Append((char)(dc + 48));
+                        stringbuilder.Append((char)(dc + 48));
                     }
                     else
                     {
-                        if (addZeros) { sb.Append('0'); }
+                        if (addZeros) { stringbuilder.Append('0'); }
                     }
                     place = (int)(place * .1);
                 }
             }
             else
-                sb.Append('0');
+                stringbuilder.Append('0');
 
-            sb.Append(decimalseperator);
+            stringbuilder.Append(decimalseperator);
 
             // part 2 
 
@@ -434,7 +459,7 @@ namespace Microsoft.Xna.Framework
             // ... march 17 testing... cut out extra zeros case 1
             if (dn == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             addZeros = true;
@@ -446,7 +471,7 @@ namespace Microsoft.Xna.Framework
                     int modulator = place * 10;
                     int val = dn % modulator;
                     int dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                     if (val - dc * place == 0) // && trimEndZeros this would be a acstetic
                     {
                         return this;
@@ -454,7 +479,7 @@ namespace Microsoft.Xna.Framework
                 }
                 else
                 {
-                    if (addZeros) { sb.Append('0'); }
+                    if (addZeros) { stringbuilder.Append('0'); }
                 }
                 place = (int)(place * .1);
             }
@@ -468,20 +493,20 @@ namespace Microsoft.Xna.Framework
             long place = 10000000000000000L;
             if (value < 0) // is Negative.
             {
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 value = -value;
                 n = -n;
             }
             if (value == 0) // is Zero
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             if (value <= -1d || value >= 1d) // is a Integer
             {
                 if (value >= place * 10)
                 {
-                    sb.Append(value); // is big, just append its a edge case.
+                    stringbuilder.Append(value); // is big, just append its a edge case.
                     return this;
                 }
                 // part 1 pull integer digits
@@ -494,18 +519,18 @@ namespace Microsoft.Xna.Framework
                         long modulator = place * 10;
                         long val = n % modulator;
                         long dc = val / place;
-                        sb.Append((char)(dc + 48));
+                        stringbuilder.Append((char)(dc + 48));
                     }
                     else
-                        if (addZeros) { sb.Append('0'); }
+                        if (addZeros) { stringbuilder.Append('0'); }
 
                     place = (long)(place * .1d);
                 }
             }
             else
-                sb.Append('0');
+                stringbuilder.Append('0');
 
-            sb.Append(decimalseperator);
+            stringbuilder.Append(decimalseperator);
 
             // part 2 
             // floating point part now it can have about 28 digits but uh ya.. nooo lol
@@ -514,7 +539,7 @@ namespace Microsoft.Xna.Framework
             long dn = (long)((value - (double)(n)) * place * 10);
             if (dn == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             addZeros = true;
@@ -525,14 +550,14 @@ namespace Microsoft.Xna.Framework
                     long modulator = place * 10;
                     long val = dn % modulator;
                     long dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                     if (val - dc * place == 0) // && trimEndZeros  aectetic
                     {
                         return this;
                     }
                 }
                 else
-                    if (addZeros) { sb.Append('0'); }
+                    if (addZeros) { stringbuilder.Append('0'); }
 
                 place = (long)(place * .1);
             }
@@ -595,13 +620,13 @@ namespace Microsoft.Xna.Framework
             if (value < 0)
             {
                 // Negative.
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 value = -value;
                 n = -n;
             }
             if (value == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             // fix march 18-17
@@ -613,7 +638,7 @@ namespace Microsoft.Xna.Framework
                 if (value >= place * 10)
                 {
                     // just append it, if its this big its a edge case.
-                    sb.Append(value);
+                    stringbuilder.Append(value);
                     return this;
                 }
                 // part 1 pull integer digits
@@ -627,19 +652,19 @@ namespace Microsoft.Xna.Framework
                         int modulator = place * 10;
                         int val = n % modulator;
                         int dc = val / place;
-                        sb.Append((char)(dc + 48));
+                        stringbuilder.Append((char)(dc + 48));
                     }
                     else
                     {
-                        if (addZeros) { sb.Append('0'); }
+                        if (addZeros) { stringbuilder.Append('0'); }
                     }
                     place = (int)(place * .1);
                 }
             }
             else
-                sb.Append('0');
+                stringbuilder.Append('0');
 
-            sb.Append(decimalseperator);
+            stringbuilder.Append(decimalseperator);
 
             // part 2 
 
@@ -650,7 +675,7 @@ namespace Microsoft.Xna.Framework
             // ... march 17 testing... cut out extra zeros case 1
             if (dn == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             addZeros = true;
@@ -662,7 +687,7 @@ namespace Microsoft.Xna.Framework
                     int modulator = place * 10;
                     int val = dn % modulator;
                     int dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                     if (val - dc * place == 0) // && trimEndZeros this would be a acstetic
                     {
                         return this;
@@ -670,7 +695,7 @@ namespace Microsoft.Xna.Framework
                 }
                 else
                 {
-                    if (addZeros) { sb.Append('0'); }
+                    if (addZeros) { stringbuilder.Append('0'); }
                 }
                 place = (int)(place * .1);
             }
@@ -684,20 +709,20 @@ namespace Microsoft.Xna.Framework
             long place = 10000000000000000L;
             if (value < 0) // is Negative.
             {
-                sb.Append(minus);
+                stringbuilder.Append(minus);
                 value = -value;
                 n = -n;
             }
             if (value == 0) // is Zero
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             if (value <= -1d || value >= 1d) // is a Integer
             {
                 if (value >= place * 10)
                 {
-                    sb.Append(value); // is big, just append its a edge case.
+                    stringbuilder.Append(value); // is big, just append its a edge case.
                     return this;
                 }
                 // part 1 pull integer digits
@@ -710,18 +735,18 @@ namespace Microsoft.Xna.Framework
                         long modulator = place * 10;
                         long val = n % modulator;
                         long dc = val / place;
-                        sb.Append((char)(dc + 48));
+                        stringbuilder.Append((char)(dc + 48));
                     }
                     else
-                        if (addZeros) { sb.Append('0'); }
+                        if (addZeros) { stringbuilder.Append('0'); }
 
                     place = (long)(place * .1);
                 }
             }
             else
-                sb.Append('0');
+                stringbuilder.Append('0');
 
-            sb.Append(decimalseperator);
+            stringbuilder.Append(decimalseperator);
 
             // part 2 
             // floating point part now it can have about 28 digits but uh ya.. nooo lol
@@ -730,7 +755,7 @@ namespace Microsoft.Xna.Framework
             long dn = (long)((value - (double)(n)) * place * 10);
             if (dn == 0)
             {
-                sb.Append('0');
+                stringbuilder.Append('0');
                 return this;
             }
             addZeros = true;
@@ -741,14 +766,14 @@ namespace Microsoft.Xna.Framework
                     long modulator = place * 10;
                     long val = dn % modulator;
                     long dc = val / place;
-                    sb.Append((char)(dc + 48));
+                    stringbuilder.Append((char)(dc + 48));
                     if (val - dc * place == 0) // && trimEndZeros  aectetic
                     {
                         return this;
                     }
                 }
                 else
-                    if (addZeros) { sb.Append('0'); }
+                    if (addZeros) { stringbuilder.Append('0'); }
 
                 place = (long)(place * .1);
             }
@@ -792,41 +817,53 @@ namespace Microsoft.Xna.Framework
         public void AppendLine(StringBuilder s)
         {
             Append(s);
-            sb.AppendLine();
+            stringbuilder.AppendLine();
         }
         public void AppendLine(string s)
         {
-            sb.Append(s);
-            sb.AppendLine();
+            stringbuilder.Append(s);
+            stringbuilder.AppendLine();
         }
         public MgStringBuilder AppendLine()
         {
-            sb.AppendLine();
+            stringbuilder.AppendLine();
             return this;
         }
 
+        // ---- To Do all the insert functions generate garbage.
+        // I believe the reason for this is not the actual insert function but capacity overflow. Could be wrong.
+        // You can AppendAt no guarentees that it will work in every case though.
+
+        /// <summary>
+        /// Using AppendAt may get around problems with garbage generation.
+        /// I haven't written a AppendAt for every case though.
+        /// </summary>
         public MgStringBuilder Insert(int index, StringBuilder s)
         {
-            sb.Insert(index, s);
+            stringbuilder.Insert(index, s);
             return this;
         }
         public MgStringBuilder Insert(int index, string s)
         {
-            sb.Insert(index, s);
+            stringbuilder.Insert(index, s);
             return this;
         }
+        /// <summary>
+        /// Using AppendAt may get around problems with garbage generation
+        /// </summary>
         public MgStringBuilder Insert(int index, char c)
         {
-            sb.Insert(index, c);
+            stringbuilder.Insert(index, c);
             return this;
         }
         public MgStringBuilder Remove(int index, int length)
         {
-            sb.Remove(index, length);
+            stringbuilder.Remove(index, length);
             return this;
         }
 
         /// <summary>
+        /// Testing i might pull this ...
         /// Be careful using this you should understand c# references before doing so.
         /// Don't pass a stringbuilder to this that you have declared new on.
         /// Declare StringBuilder refsb;  then pass refsb to this function.
@@ -834,19 +871,18 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public void LinkReferenceToTheInnerStringBuilder(out StringBuilder rsb)
         {
-            rsb = sb;
+            rsb = stringbuilder;
         }
 
         public char[] ToCharArray()
         {
-            char[] a = new char[sb.Length];
-            sb.CopyTo(0, a, 0, sb.Length);
+            char[] a = new char[stringbuilder.Length];
+            stringbuilder.CopyTo(0, a, 0, stringbuilder.Length);
             return a;
         }
         public override string ToString()
         {
-            return sb.ToString();
+            return stringbuilder.ToString();
         }
     }
 }
-
