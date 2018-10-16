@@ -9,18 +9,20 @@ Listing...
 MgStringBuilder. 
 
 This class is a wrapper around stringbuilder it can be used in place of stringbuilder in most cases.
-It can also take or return a stringbuilder to work with it were necessary.
-It also has quite a few convient operator overloads.
-This class can bypass many garbage collections that stingbuilder doesn't especially for numerical appends and inserts. 
-This class bypasses numeric.ToString() that causes garbage collections in C# itself which in turn affect monogame.
-The performance of inserting is not as great due to the work arounds that are done.
-The class despite the size which is unrolled, is pretty performant, i use this myself constantly.
+It can take or return a stringbuilder to work with it were necessary.
+It also has quite a few convenient operator overloads.
+This class can bypass many garbage collections that stingbuilder doesn't, especially for numerical appends and inserts. 
+This class bypasses numeric.ToString() which causes garbage collections in C# itself, which in turn affect monogame.
+The performance of inserting is not as great due to the work arounds that are done using the stringbuilder indexer.
+The class despite the size which is unrolled, is pretty performant otherwise, i use this myself constantly.
 
 MgFrameRate.
 
 This class is used to display framerate.
-The class displays basic information about memory usage, when collections occur and how much is being lost.
-The class takes a initial setup typically in load, you call to it in update and draw, that is all that is required
+The class displays basic information about fps frame and update rates draw.
+It also displays useful memory usage info in the game window, when collections occur and how much is being lost.
+The class is setup typically in load. 
+You call to it in update and draw, that is all that is required other then that you have loaded a font.
 
 MgTextBounder.
 
