@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Microsoft.Xna.Framework
 {
-
     /// <summary>
     /// Wraps a stringbuilder to a bounding box.
     /// This class of course works for a no garbage MgStringBuilder as well.
@@ -35,10 +34,11 @@ namespace Microsoft.Xna.Framework
         }
 
         /// <summary>
-        /// Alter a character in this spritefont.
+        /// New i just added this here for now.
+        /// Alter a characters width in this spritefont.
         /// requires ... using System.Collections.Generic;
         /// </summary>
-        public static SpriteFont AlterSpriteFont(SpriteFont sf, char chartoalter, float width_amount_to_add)
+        public static SpriteFont AlterSpriteFontWidth(SpriteFont sf, char chartoalter, float width_amount_to_add)
         {
             Dictionary<char, SpriteFont.Glyph> dgyphs;
             SpriteFont.Glyph defaultglyph;
@@ -77,6 +77,119 @@ namespace Microsoft.Xna.Framework
             List<Rectangle> b = new List<Rectangle>();
             sf = new SpriteFont(sf.Texture, glyphBounds, cropping, characters, sf.LineSpacing, sf.Spacing, kerning, defaultchar);
             return sf;
+        }
+
+        /// <summary>
+        /// This is the primary working method the others only will generate garbage during runtime.
+        /// That may or may not be a problem depending on if you are just pre-calculating.
+        /// </summary>
+        public static void WordWrapTextWithinBounds(ref MgStringBuilder text, Vector2 scale, Rectangle boundRect)
+        {
+            var Spacing = tsf.Spacing;
+            var lineHeight = tsf.LineSpacing * scale.Y;
+            Vector2 offset = Vector2.Zero;
+            float yextent = offset.Y + lineHeight;
+            Vector2 redrawOffset = Vector2.Zero;
+            Rectangle dest = new Rectangle();
+            var currentGlyph = SpriteFont.Glyph.Empty;
+            var firstGlyphOfLine = true;
+
+            int lastWordBreakCharPos = 0;
+            bool firstwordonline = true;
+            Vector2 rewindOffset = Vector2.Zero;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+
+                if (c == '\r')
+                    continue;
+                if (c == '\n')
+                {
+                    offset.X = 0;
+                    offset.Y += lineHeight;
+                    yextent = offset.Y + lineHeight;
+                    firstGlyphOfLine = true;
+                    firstwordonline = true;
+                    continue;
+                }
+
+                if (_glyphs.ContainsKey(c))
+                    currentGlyph = _glyphs[c];
+                else
+                if (!tsf.DefaultCharacter.HasValue)
+                    throw new ArgumentException("Text Contains a Unresolvable Character");
+                else
+                    currentGlyph = defaultGlyph;
+
+                // Solves the problem- the first character on a line with a negative left side bearing.
+                if (firstGlyphOfLine)
+                {
+                    offset.X = Math.Max(currentGlyph.LeftSideBearing, 0);
+                    firstGlyphOfLine = false;
+                }
+                else
+                    offset.X += Spacing + currentGlyph.LeftSideBearing;
+
+                // matrix calculations unrolled rotation is excluded for this version
+                var m = offset;
+                m.X += currentGlyph.Cropping.X;
+                m.Y += currentGlyph.Cropping.Y;
+
+                dest = new Rectangle(
+                    (int)(m.X * scale.X),
+                    (int)(m.Y * scale.Y),
+                    (int)(currentGlyph.BoundsInTexture.Width * scale.X),
+                    (int)(currentGlyph.BoundsInTexture.Height * scale.Y)
+                    );
+
+                // Begin word wrapping operations.
+                // if char is a word break character e.g. white space
+                if (c == ' ')
+                {
+                    lastWordBreakCharPos = i;
+                    rewindOffset = offset;
+                    if (firstwordonline)
+                        firstwordonline = false;
+                }
+                // word wrapping calculations.
+                if (yextent >= boundRect.Height)
+                {
+                    // this essentially is function termination due to height boundry
+                    text.Length = i;
+                    i = text.Length;
+                }
+                else
+                {
+                    if (dest.Right > boundRect.Width)
+                    {
+                        if (text.Length > (i + 1))
+                        {
+                            if (firstwordonline == false)
+                            {
+                                if (text[lastWordBreakCharPos + 1] != '\n')
+                                {
+                                    // i also pulled the +1 here which is i think inserting a improperly positioned like break using append at.
+                                    text.AppendAt(lastWordBreakCharPos + 1, '\n'); // !!!  insert here is a gcollection problem... fixed
+                                    if (text[lastWordBreakCharPos + 1] != ' ')
+                                    {
+                                        offset = rewindOffset;
+                                        i = lastWordBreakCharPos;
+                                    }
+                                }
+                            }
+                            else // first word on the line true
+                            {
+                                if (text[i + 1] != '\n') // if its not already a new line char
+                                {
+                                    text.AppendAt(i + 1, '\n'); // !!!  insert here is a gcollection problem... fixed
+                                }
+                            }
+                        }
+                    }
+                }
+                offset.X += currentGlyph.Width + currentGlyph.RightSideBearing;
+            }
         }
 
         /// <summary>
@@ -329,112 +442,5 @@ namespace Microsoft.Xna.Framework
             return tmp;
         }
 
-        public static void WordWrapTextWithinBounds(ref MgStringBuilder text, Vector2 scale, Rectangle boundRect)
-        {
-            var Spacing = tsf.Spacing;
-            var lineHeight = tsf.LineSpacing * scale.Y;
-            Vector2 offset = Vector2.Zero;
-            float yextent = offset.Y + lineHeight;
-            Vector2 redrawOffset = Vector2.Zero;
-            Rectangle dest = new Rectangle();
-            var currentGlyph = SpriteFont.Glyph.Empty;
-            var firstGlyphOfLine = true;
-
-            int lastWordBreakCharPos = 0;
-            bool firstwordonline = true;
-            Vector2 rewind = Vector2.Zero;
-
-            for (int i = 0; i < text.Length; i++)
-            {
-                char c = text[i];
-
-                if (c == '\r')
-                    continue;
-                if (c == '\n')
-                {
-                    offset.X = 0;
-                    offset.Y += lineHeight;
-                    yextent = offset.Y + lineHeight;
-                    firstGlyphOfLine = true;
-                    firstwordonline = true;
-                    continue;
-                }
-
-                if (_glyphs.ContainsKey(c))
-                    currentGlyph = _glyphs[c];
-                else
-                if (!tsf.DefaultCharacter.HasValue)
-                    throw new ArgumentException("Text Contains a Unresolvable Character");
-                else
-                    currentGlyph = defaultGlyph;
-
-                // Solves the problem- the first character on a line with a negative left side bearing.
-                if (firstGlyphOfLine)
-                {
-                    offset.X = Math.Max(currentGlyph.LeftSideBearing, 0);
-                    firstGlyphOfLine = false;
-                }
-                else
-                    offset.X += Spacing + currentGlyph.LeftSideBearing;
-
-                // matrix calculations unrolled rotation is excluded for this version
-                var m = offset;
-                m.X += currentGlyph.Cropping.X;
-                m.Y += currentGlyph.Cropping.Y;
-
-                dest = new Rectangle(
-                    (int)(m.X * scale.X),
-                    (int)(m.Y * scale.Y),
-                    (int)(currentGlyph.BoundsInTexture.Width * scale.X),
-                    (int)(currentGlyph.BoundsInTexture.Height * scale.Y)
-                    );
-
-                // Begin word wrapping operations.
-                // if char is a word break character e.g. white space
-                if (c == ' ')
-                {
-                    lastWordBreakCharPos = i;
-                    rewind = offset;
-                    if (firstwordonline)
-                        firstwordonline = false;
-                }
-                // word wrapping calculations.
-                if (yextent >= boundRect.Height)
-                {
-                    text.Length = i;
-                    i = text.Length;
-                }
-                else
-                {
-                    if (dest.Right > boundRect.Width)
-                    {
-                        if (text.Length > (i + 1))
-                        {
-                            if (firstwordonline == false)
-                            {
-                                if (text[lastWordBreakCharPos + 1] != '\n')
-                                {
-                                    text.AppendAt(lastWordBreakCharPos + 1, '\n'); // !!!  insert here is a gcollection problem... fixed
-                                    if (text[lastWordBreakCharPos + 1] != ' ')
-                                    {
-                                        offset = rewind;
-                                        i = lastWordBreakCharPos;
-                                    }
-                                }
-                            }
-                            else // first word on the line true
-                            {
-                                if (text[i + 1] != '\n') // if its not already a new line char
-                                {
-                                    text.AppendAt(i + 1, '\n'); // !!!  insert here is a gcollection problem... fixed
-                                }
-                            }
-                        }
-                    }
-                }
-                offset.X += currentGlyph.Width + currentGlyph.RightSideBearing;
-            }
-        }
-    
     }
 }
