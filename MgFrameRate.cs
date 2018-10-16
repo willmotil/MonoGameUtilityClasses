@@ -7,11 +7,11 @@ namespace Microsoft.Xna.Framework
 {
     public class MgFrameRate
     {
-        MgStringBuilder msg = "";
-        MgStringBuilder fpsmsg = "";
-        MgStringBuilder gcmsg = "";
-        Texture2D dotTexture;
+        public Texture2D dotTexture;
         SpriteBatch spriteBatch;
+        MgStringBuilder msg = new MgStringBuilder();
+        MgStringBuilder fpsmsg = new MgStringBuilder();
+        MgStringBuilder gcmsg = new MgStringBuilder();
 
         public bool DisplayFrameRate = true;
         public bool DisplayGarbageCollectionRate = true;
@@ -76,7 +76,7 @@ namespace Microsoft.Xna.Framework
                     fpsmsg.Append(" Elapsed interval: ").AppendTrim(elapsed).AppendLine();
                     fpsmsg.Append(" Updates: ").Append(updates).AppendLine();
                     fpsmsg.Append(" Frames: ").Append(frames).AppendLine();
-                    fpsmsg.Append(" Seconds Running: ").AppendTrim((now / 60d)).AppendLine();
+                    fpsmsg.Append(" Seconds Running: ").AppendTrim((now)).AppendLine();
 
                     elapsed = 0;
                     frames = 0;
