@@ -35,6 +35,7 @@ namespace Microsoft.Xna.Framework
     /// Appendline was adding the new line to the beginning not the end.
     /// Added a method to directly link via reference to the internal string builder this will probably stay in.
     /// Octob 16
+    /// Operator overload was added to allow for class scope assignment using = by string.
     /// The original AppendAt was fixed and renamed to OverWriteAt, The new AppendAt's works as a Insert.
     /// Multiple overloads were added and tested in relation.
     /// ...
