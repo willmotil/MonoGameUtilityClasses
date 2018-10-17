@@ -846,7 +846,7 @@ namespace Microsoft.Xna.Framework
             int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
             if (reqcapacity > 0)
                 this.StringBuilder.Capacity += reqcapacity + 32;
-            // increase the Length of the stingbuilder by 1
+            // increase the Length of the stingbuilder by string length
             int initialLength = StringBuilder.Length;
             StringBuilder.Length = initialLength + s.Length;
             // Now we will wind from back to front the current characters in the stringbuilder to make room for this append.
