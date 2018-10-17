@@ -52,7 +52,9 @@ It creates the u,v's along the surface proportionally to fit a single texture an
 The smooth normals are best used when the surface area has curvature for light reflection.
 
 
-In the tests is also a full screen tester.
+WinFullscreenModeChangeTestApp.
+
+In the Tests is also a full screen testing class.
 The full project for that can be found here.
 
 https://drive.google.com/open?id=1SLpOZWz_whcPEcxz4fTk9OUd8wu9xPbw
