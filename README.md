@@ -12,10 +12,6 @@ This class shows the usage of the MgFrameRate. MgStringBuilder. MgTextBounder.
 You can put all of these into a MonoGameProject change the namespace for game1 
 Make a font named MgFont and try it out. This project was tested under Dx it should work on Gl as well.
 
-The full gl project 
-
-https://drive.google.com/open?id=1zSlqFKJfUUmTuAm-jYxm0RJRxuT8KAoY
-
 MgStringBuilder. 
 
 This class is a wrapper around stringbuilder it can be used in place of stringbuilder in most cases.
@@ -42,6 +38,10 @@ Unlike measure string this class copys or directly alters a stringbuilder to for
 This class was and is in another form a experimental prototype for a direct DrawString() overload.
 
 <img src="https://github.com/willmotil/MonoGameUtilityClasses/blob/master/Images/ExampleFpsMgSbTextBounder.png?raw=true">
+
+The full gl project 
+
+https://drive.google.com/open?id=1zSlqFKJfUUmTuAm-jYxm0RJRxuT8KAoY
 
 
 SurfaceMesh.
