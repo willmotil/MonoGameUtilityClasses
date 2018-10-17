@@ -50,3 +50,9 @@ Still not fully completed as its companion class is not done, who knows if i wil
 This class takes a array of vector4's and treats them as if they are to be made into a VertexPositionNormalTexture array.
 It creates the u,v's along the surface proportionally to fit a single texture and creates smooth normals.
 The smooth normals are best used when the surface area has curvature for light reflection.
+
+
+In the tests is also a full screen tester.
+The full project for that can be found here.
+
+https://drive.google.com/open?id=1SLpOZWz_whcPEcxz4fTk9OUd8wu9xPbw
