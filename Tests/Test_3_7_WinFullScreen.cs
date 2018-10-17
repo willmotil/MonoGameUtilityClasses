@@ -7,7 +7,22 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FullScrWinTests3_7_Gl
 {
-    // this is test version 16
+    ///
+    /// this is test version 16
+    ///
+    /// You will need to create project for the test.
+    /// Copy this file change the name space if need be.
+    /// Create and load a font for this test.
+    ///
+    /// This test allows you to see examples of how to 
+    /// Drop in and out of full screen at run time.
+    /// Change display modes at runtime.
+    /// Alter the back buffer or prefered device presentation params.
+    ///
+    /// The test has a auto script that can be run
+    /// Going into your project properties and setting the output type to console.
+    /// Will also display a console window with more info as the test runs.
+    ///
     public class Game1 : Game
     {
 
