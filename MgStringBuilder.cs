@@ -47,6 +47,7 @@ namespace Microsoft.Xna.Framework
         private static char plus = '+';
 
         private StringBuilder stringbuilder;
+        
         /// <summary>
         /// It is recommended you avoid this unless needed. 
         /// it is possible to create garbage with it.
