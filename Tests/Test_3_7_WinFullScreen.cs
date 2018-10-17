@@ -9,6 +9,7 @@ namespace FullScrWinTests3_7_Gl
 {
     ///
     /// this is test version 16
+    /// A Gl ziped project can be found here https://drive.google.com/open?id=1SLpOZWz_whcPEcxz4fTk9OUd8wu9xPbw
     ///
     /// You will need to create project for the test.
     /// Copy this file change the name space if need be.
