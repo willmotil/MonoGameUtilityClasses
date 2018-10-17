@@ -836,9 +836,7 @@ namespace Microsoft.Xna.Framework
             for (int j = StringBuilder.Length - 1; j >= index + insertedsbLength; j--)
                 StringBuilder[j] = StringBuilder[j - insertedsbLength];
             for (int i = 0; i < insertedsbLength; i++)
-            {
                 this.StringBuilder[index + i] = s[i];
-            }
         }
         /// <summary>
         /// Functions as a insert, existing text will be moved over. Notes are left in this method
@@ -858,9 +856,7 @@ namespace Microsoft.Xna.Framework
                 StringBuilder[j] = StringBuilder[j - insertedsbLength];
             // perform the append
             for (int i = 0; i < insertedsbLength; i++)
-            {
                 this.StringBuilder[index + i] = s[i];
-            }
         }
 
         /// <summary>
