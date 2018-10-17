@@ -66,7 +66,7 @@ _____________________________________
 
 WinFullscreenModeChangeTestApp.
 
-In the Tests is also a full screen testing class.
+In the Tests Folder is also a full screen testing class.
 The full project for that can be found here.
 
 https://drive.google.com/open?id=1SLpOZWz_whcPEcxz4fTk9OUd8wu9xPbw
