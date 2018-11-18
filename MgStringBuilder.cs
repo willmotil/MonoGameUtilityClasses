@@ -8,11 +8,16 @@ namespace Microsoft.Xna.Framework
     /// <summary>
     /// No garbage stringbuilder William Motill 2017, last fix or change October 16, 2018.
     /// 
-    /// The purpose of this class is to eliminate garbage collections. Performance is to be considered.
-    /// While this is not for high precision, ill attempt to get it into reasonable shape over time.
+    /// The purpose of this class is to eliminate garbage collections. 
+    /// Primarily bypassing numeric conversions to string.
+    /// While this is not for high precision, Performance is to be considered.
     /// This class can be used in place of stringbuilder it was primarily designed for use with monogame.
-    /// To use it as a regular c# class simply remove the vector and color overloads.
     /// 
+    ///  Notes
+    ///  To use this as a regular c# class simply remove the vector and color overloads.
+    ///  It's more like a string now ability wise, since over time ive slowly changed things to add overloads properly.
+    ///  So while you can use it with the + "" + operators id avoid that when adding dynamic number variable and stick with .append()
+    ///   
     /// ...
     /// Change log 2017
     /// ...
@@ -35,9 +40,10 @@ namespace Microsoft.Xna.Framework
     /// Appendline was adding the new line to the beginning not the end.
     /// Added a method to directly link via reference to the internal string builder this will probably stay in.
     /// Octob 16
-    /// Operator overload was added to allow for class scope assignment using = by string.
     /// The original AppendAt was fixed and renamed to OverWriteAt, The new AppendAt's works as a Insert.
     /// Multiple overloads were added and tested in relation.
+    /// Nov 16 
+    /// Standardized capacity and length checks to a method.
     /// ...
     /// </summary>
     public sealed class MgStringBuilder
@@ -45,34 +51,40 @@ namespace Microsoft.Xna.Framework
         private static char decimalseperator = '.';
         private static char minus = '-';
         private static char plus = '+';
-
         private StringBuilder stringbuilder;
-        
+
         /// <summary>
-        /// It is recommended you avoid this unless needed. 
-        /// it is possible to create garbage with it.
-        /// If for some reason you need to operate on the sb directly you can optionally use LinkReferenceToStringBuilder
+        /// This was sort of a iffy thing to add i was superstitious it might make garbage, after all this time i guess its pretty safe.
         /// </summary>
         public StringBuilder StringBuilder
         {
             get { return stringbuilder; }
             private set { if (stringbuilder == null) { stringbuilder = value; } else { stringbuilder.Clear(); stringbuilder.Append(value); } }
         }
-
+        /// <summary>
+        /// Clears the length without clearing the capacity to prevent garbage deallocation.
+        /// </summary>
         public int Length
         {
             get { return stringbuilder.Length; }
             set { stringbuilder.Length = value; }
         }
-        public int Capacity
-        {
-            get { return StringBuilder.Capacity; }
-            set { StringBuilder.Capacity = value; }
-        }
+        /// <summary>
+        /// Clears the length without clearing the capacity to prevent garbage deallocation.
+        /// </summary>
         public void Clear()
         {
             stringbuilder.Length = 0;
         }
+        /// <summary>
+        /// Typically you only increase this setting it to say zero would cause a garbage collection to occur.
+        /// </summary>
+        public int Capacity
+        {
+            get { return stringbuilder.Capacity; }
+            set { stringbuilder.Capacity = value; }
+        }
+
         public static void CheckSeperator()
         {
             decimalseperator = Convert.ToChar(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
@@ -80,7 +92,6 @@ namespace Microsoft.Xna.Framework
 
         /// <summary>
         /// Indexer to chars in the underlying array
-        /// Exceptions index out of bounds
         /// </summary>
         public char this[int i]
         {
@@ -112,6 +123,7 @@ namespace Microsoft.Xna.Framework
         }
 
         // operators
+
         public static implicit operator MgStringBuilder(String s)
         {
             return new MgStringBuilder(s);
@@ -135,17 +147,12 @@ namespace Microsoft.Xna.Framework
             return sbm;
         }
 
-        // Methods
+        // Methods all the appends are unrolled to squeeze out speed.
 
         public MgStringBuilder Append(StringBuilder s)
         {
             int len = this.StringBuilder.Length;
-            int reqcapacity = (s.Length + len) - this.StringBuilder.Capacity;
-            //int reqcapacity = (s.Length + len +1) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
-
-            this.StringBuilder.Length = len + s.Length;
+            CheckAppendCapacityAndLength(stringbuilder.Length, s.Length);
             for (int i = 0; i < s.Length; i++)
             {
                 this.StringBuilder[i + len] = (char)(s[i]);
@@ -154,12 +161,17 @@ namespace Microsoft.Xna.Framework
         }
         public MgStringBuilder Append(string s)
         {
-            this.StringBuilder.Append(s);
+            stringbuilder.Append(s);
+            return this;
+        }
+        public MgStringBuilder Append(char value)
+        {
+            stringbuilder.Append(value);
             return this;
         }
         public MgStringBuilder Append(bool value)
         {
-            this.StringBuilder.Append(value);
+            stringbuilder.Append(value);
             return this;
         }
         public MgStringBuilder Append(byte value)
@@ -497,6 +509,15 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
+        public MgStringBuilder Append(Point value)
+        {
+            Append("(");
+            Append(value.X);
+            Append(", ");
+            Append(value.Y);
+            Append(")");
+            return this;
+        }
         public MgStringBuilder Append(Vector2 value)
         {
             Append("(");
@@ -765,31 +786,20 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
-        // these will probably be somewhat slower then appends.
-
         /// <summary>
         /// Functions just like a indexer.
         /// </summary>
         public void OverWriteAt(int index, Char s)
         {
-            int reqcapacity = (index + 1 + 1) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
-            int initialLength = StringBuilder.Length;
-            for (int i = 0; i < 1; i++)
-                this.StringBuilder[i + index] = (char)(s);
+            CheckOverWriteCapacityAndLength(index, 1);
+                this.StringBuilder[index] = (char)(s);
         }
         /// <summary>
         /// Functions to overwrite data at the index on
         /// </summary>
         public void OverWriteAt(int index, StringBuilder s)
         {
-            int len = this.StringBuilder.Length;
-            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
-
-            int initialLength = StringBuilder.Length;
+            CheckOverWriteCapacityAndLength(index, s.Length);
             for (int i = 0; i < s.Length; i++)
                 this.StringBuilder[i + index] = (char)(s[i]);
         }
@@ -798,11 +808,7 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public void OverWriteAt(int index, String s)
         {
-            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity;
-            int initialLength = StringBuilder.Length;
-            // perform the append
+            CheckAppendCapacityAndLength(index, s.Length);
             for (int i = 0; i < s.Length; i++)
                 this.StringBuilder[i + index] = (char)(s[i]);
         }
@@ -812,51 +818,43 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public void AppendAt(int index, Char s)
         {
-            int reqcapacity = (this.StringBuilder.Length + 1) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity + 32;
-            int initialLength = StringBuilder.Length;
-            StringBuilder.Length = initialLength + 1;
+            CheckAppendCapacityAndLength(index, 1);
             for (int j = StringBuilder.Length - 1; j >= index + 1; j--)
-                StringBuilder[j] = StringBuilder[j - 1];
+                stringbuilder[j] = stringbuilder[j - 1];
             for (int i = 0; i < 1; i++)
-                this.StringBuilder[i + index] = (char)(s);
+                stringbuilder[i + index] = (char)(s);
         }
         /// <summary>
         /// Functions as a insert, existing text will be moved over.
         /// </summary>
         public void AppendAt(int index, StringBuilder s)
         {
-            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity + 32;
-            int initialLength = StringBuilder.Length;
-            StringBuilder.Length = initialLength + s.Length;
+            CheckAppendCapacityAndLength(index, s.Length);
             int insertedsbLength = s.Length;
-            for (int j = StringBuilder.Length - 1; j >= index + insertedsbLength; j--)
-                StringBuilder[j] = StringBuilder[j - insertedsbLength];
+            for (int j = stringbuilder.Length - 1; j >= index + insertedsbLength; j--)
+                stringbuilder[j] = stringbuilder[j - insertedsbLength];
             for (int i = 0; i < insertedsbLength; i++)
-                this.StringBuilder[index + i] = s[i];
+            {
+                stringbuilder[index + i] = s[i];
+            }
         }
         /// <summary>
-        /// Functions as a insert, existing text will be moved over. Notes are left in this method
+        /// Functions as a insert, existing text will be moved over. Notes are left in this method overload.
         /// </summary>
         public void AppendAt(int index, String s)
         {
-            int reqcapacity = (index + 1 + s.Length) - this.StringBuilder.Capacity;
-            if (reqcapacity > 0)
-                this.StringBuilder.Capacity += reqcapacity + 32;
-            // increase the Length of the stingbuilder by string length
-            int initialLength = StringBuilder.Length;
-            StringBuilder.Length = initialLength + s.Length;
+            CheckAppendCapacityAndLength(index, s.Length);
             // Now we will wind from back to front the current characters in the stringbuilder to make room for this append.
             // Yes this will be a expensive operation however this must be done if we want a proper AppendAt.
+            // Chunks or no chunks stringbuilders insert is piss poor.
             int insertedsbLength = s.Length;
-            for (int j = StringBuilder.Length - 1; j >= index + insertedsbLength; j--)
-                StringBuilder[j] = StringBuilder[j - insertedsbLength];
+            for (int j = stringbuilder.Length - 1; j >= index + insertedsbLength; j--)
+                stringbuilder[j] = stringbuilder[j - insertedsbLength];
             // perform the append
             for (int i = 0; i < insertedsbLength; i++)
-                this.StringBuilder[index + i] = s[i];
+            {
+                stringbuilder[index + i] = s[i];
+            }
         }
 
         /// <summary>
@@ -869,7 +867,6 @@ namespace Microsoft.Xna.Framework
         }
         /// <summary>
         /// This uses AppendAt to get around problems with garbage collections.
-        /// No guarentees but initial tests appear ok
         /// </summary>
         public MgStringBuilder Insert(int index, StringBuilder s)
         {
@@ -891,12 +888,34 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
+        private void CheckAppendCapacityAndLength(int index, int lengthOfAddition)
+        {
+            int newLength = lengthOfAddition + stringbuilder.Length;
+            int reqcapacity = (newLength + 1) - (stringbuilder.Capacity);
+            if (reqcapacity >= 0)
+                stringbuilder.Capacity = (stringbuilder.Capacity + reqcapacity + 64);
+            stringbuilder.Length = newLength;
+        }
+        private void CheckOverWriteCapacityAndLength(int index, int lengthOfOverWrite)
+        {
+            int dist = index + lengthOfOverWrite;
+            if (dist >= stringbuilder.Length)
+            {
+                int newLength = lengthOfOverWrite + stringbuilder.Length;
+                int reqcapacity = (newLength + 1) - (stringbuilder.Capacity);
+                if (reqcapacity >= 0)
+                    stringbuilder.Capacity = (stringbuilder.Capacity + reqcapacity + 64);
+                stringbuilder.Length = newLength;
+            }
+        }
+
         /// <summary>
-        /// Testing i might pull this ...
-        /// Be careful using this you should understand c# references before doing so.
-        /// Don't pass a stringbuilder to this that you have declared new on.
-        /// Declare StringBuilder refsb;  then pass refsb to this function.
-        /// When you are done with it unlink it by declaring new on it like so, refsb = new StringBuilder();
+        /// Use with caution this solves a rare edge case.
+        /// Be careful using this you should understand c# references before doing so. 
+        /// This creates a direct secondary reference to the internal stringbuilder via out.
+        /// Declare a StringBuilder reference such as StringBuilder sb; don't call new on it,  then pass sb to this function.
+        /// When you are done with it unlink it by declaring new on it like so, sb = new StringBuilder();
+        /// This allows a way to link a reference to the internal stringbuilder without creating deallocation garbage.
         /// </summary>
         public void LinkReferenceToTheInnerStringBuilder(out StringBuilder rsb)
         {
@@ -909,6 +928,7 @@ namespace Microsoft.Xna.Framework
             stringbuilder.CopyTo(0, a, 0, stringbuilder.Length);
             return a;
         }
+
         public override string ToString()
         {
             return stringbuilder.ToString();
