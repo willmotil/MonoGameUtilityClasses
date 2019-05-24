@@ -60,6 +60,7 @@ TextWrapping
 This class is very similar to the above but it is a real time stand alone class and method.
 Measure string is not required as the method effectively includes it in the run but in a modified manner.
 Which instead word wraps a altered version then draws it.
+If used in combination with the mgstringbuilder no garbage allocations will be generated for dynamic text.
 
 _____________________________________
 
