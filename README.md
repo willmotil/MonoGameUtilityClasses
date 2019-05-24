@@ -18,7 +18,7 @@ This project was tested on GL it should work on Dx as well.
 
 <img src="https://github.com/willmotil/MonoGameUtilityClasses/blob/master/Images/ExampleFpsMgSbTextBounder.png?raw=true">
 
-The full gl project 
+The old gl project 
 
 https://drive.google.com/open?id=1KSrPglaYow8pVORL315pYaV6fb6MlpU0
 
