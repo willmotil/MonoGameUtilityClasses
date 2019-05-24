@@ -1,12 +1,19 @@
 using System;
+//using System.IO;
 using System.Text;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+//using System.Linq;
+//using System.Collections.Generic;
+//using Microsoft.Xna.Framework;
+//using Microsoft.Xna.Framework.Graphics;
+//using Microsoft.Xna.Framework.Input;
+//using System.Diagnostics;
+//using System.Reflection;
+////using System.Xml.Serialization;
 
 namespace Microsoft.Xna.Framework
 {
     /// <summary>
-    /// No garbage stringbuilder William Motill 2017, last fix or change October 16, 2018.
+    /// No garbage stringbuilder William Motill 2017, last fix or change Feb 10, 2019.
     /// 
     /// The purpose of this class is to eliminate garbage collections. 
     /// Primarily bypassing numeric conversions to string.
@@ -32,18 +39,20 @@ namespace Microsoft.Xna.Framework
     /// ...
     ///  Change log  2018
     /// ...
-    /// March 18
     /// Added a Indexer to index into the underlying stringbuilder to directly access chars.
-    /// March 20
     /// Added a insert char overload.
-    /// Octob 13 
     /// Appendline was adding the new line to the beginning not the end.
     /// Added a method to directly link via reference to the internal string builder this will probably stay in.
-    /// Octob 16
     /// The original AppendAt was fixed and renamed to OverWriteAt, The new AppendAt's works as a Insert.
     /// Multiple overloads were added and tested in relation.
-    /// Nov 16 
     /// Standardized capacity and length checks to a method.
+    /// Added AppendTrim overloads to allow setting the decimal place.
+    /// Added a rectangle why i never added this before.
+    /// ...
+    /// Change log  2019
+    /// ...
+    /// Feb 10 
+    /// Added Familiar insert methods that use the AppendAt
     /// ...
     /// </summary>
     public sealed class MgStringBuilder
@@ -89,6 +98,8 @@ namespace Microsoft.Xna.Framework
         {
             decimalseperator = Convert.ToChar(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
         }
+
+        // indexer
 
         /// <summary>
         /// Indexer to chars in the underlying array
@@ -734,6 +745,196 @@ namespace Microsoft.Xna.Framework
             return this;
         }
 
+        public MgStringBuilder AppendTrim(float value, int digits)
+        {
+            // basics
+            bool addZeros = false;
+            int n = (int)(value);
+            int place = 100000000;
+            if (value < 0)
+            {
+                // Negative.
+                stringbuilder.Append(minus);
+                value = -value;
+                n = -n;
+            }
+            if (value == 0)
+            {
+                stringbuilder.Append('0');
+                return this;
+            }
+            // fix march 18-17
+            // values not zero value is at least a integer
+            if (value <= -1f || value >= 1f)
+            {
+
+                place = 100000000;
+                if (value >= place * 10)
+                {
+                    // just append it, if its this big its a edge case.
+                    stringbuilder.Append(value);
+                    return this;
+                }
+                // part 1 pull integer digits
+                // int n =  // moved
+                addZeros = false;
+                while (place > 0)
+                {
+                    if (n >= place)
+                    {
+                        addZeros = true;
+                        int modulator = place * 10;
+                        int val = n % modulator;
+                        int dc = val / place;
+                        stringbuilder.Append((char)(dc + 48));
+                    }
+                    else
+                    {
+                        if (addZeros) { stringbuilder.Append('0'); }
+                    }
+                    place = (int)(place * .1);
+                }
+            }
+            else
+                stringbuilder.Append('0');
+
+            stringbuilder.Append(decimalseperator);
+
+            // part 2 
+
+            // floating point part now it can have about 28 digits but uh ya.. nooo lol
+
+            // nov 20 2018 added the amount of digits to trim.
+            //place = 100;
+            if (digits < 1)
+                place = 0;
+            else
+            {
+                place = 1;
+                for (int i = 0; i < digits - 1; i++)
+                    place *= 10;
+            }
+
+            // pull decimal to integer digits, based on the number of place digits
+            int dn = (int)((value - (float)(n)) * place * 10);
+            // ... march 17 testing... cut out extra zeros case 1
+            if (dn == 0)
+            {
+                stringbuilder.Append('0');
+                return this;
+            }
+            addZeros = true;
+            while (place > 0)
+            {
+                if (dn >= place)
+                {
+                    //addzeros = true;
+                    int modulator = place * 10;
+                    int val = dn % modulator;
+                    int dc = val / place;
+                    stringbuilder.Append((char)(dc + 48));
+                    if (val - dc * place == 0) // && trimEndZeros this would be a acstetic
+                    {
+                        return this;
+                    }
+                }
+                else
+                {
+                    if (addZeros) { stringbuilder.Append('0'); }
+                }
+                place = (int)(place * .1);
+            }
+            return this;
+        }
+        public MgStringBuilder AppendTrim(double value, int digits)
+        {
+            // basics
+            bool addZeros = false;
+            long n = (long)(value);
+            long place = 10000000000000000L;
+            if (value < 0) // is Negative.
+            {
+                stringbuilder.Append(minus);
+                value = -value;
+                n = -n;
+            }
+            if (value == 0) // is Zero
+            {
+                stringbuilder.Append('0');
+                return this;
+            }
+            if (value <= -1d || value >= 1d) // is a Integer
+            {
+                if (value >= place * 10)
+                {
+                    stringbuilder.Append(value); // is big, just append its a edge case.
+                    return this;
+                }
+                // part 1 pull integer digits
+                addZeros = false;
+                while (place > 0)
+                {
+                    if (n >= place)
+                    {
+                        addZeros = true;
+                        long modulator = place * 10;
+                        long val = n % modulator;
+                        long dc = val / place;
+                        stringbuilder.Append((char)(dc + 48));
+                    }
+                    else
+                        if (addZeros) { stringbuilder.Append('0'); }
+
+                    place = (long)(place * .1);
+                }
+            }
+            else
+                stringbuilder.Append('0');
+
+            stringbuilder.Append(decimalseperator);
+
+            // part 2 
+            // floating point part now it can have about 28 digits but uh ya.. nooo lol
+            // nov 20 2018 added the amount of digits to trim.
+            //place = 100L;
+            if (digits < 1)
+                place = 0;
+            else
+            {
+                place = 1;
+                for (int i = 0; i < digits - 1; i++)
+                    place *= 10;
+            }
+
+            // pull decimal to integer digits, based on the number of place digits
+            long dn = (long)((value - (double)(n)) * place * 10);
+            if (dn == 0)
+            {
+                stringbuilder.Append('0');
+                return this;
+            }
+            addZeros = true;
+            while (place > 0)
+            {
+                if (dn >= place)
+                {
+                    long modulator = place * 10;
+                    long val = dn % modulator;
+                    long dc = val / place;
+                    stringbuilder.Append((char)(dc + 48));
+                    if (val - dc * place == 0) // && trimEndZeros  aectetic
+                    {
+                        return this;
+                    }
+                }
+                else
+                    if (addZeros) { stringbuilder.Append('0'); }
+
+                place = (long)(place * .1);
+            }
+            return this;
+        }
+
         public MgStringBuilder AppendTrim(Vector2 value)
         {
             Append("(");
@@ -767,6 +968,19 @@ namespace Microsoft.Xna.Framework
             Append(")");
             return this;
         }
+        public MgStringBuilder Append(Rectangle value)
+        {
+            Append("(");
+            AppendTrim(value.X);
+            Append(", ");
+            AppendTrim(value.Y);
+            Append(", ");
+            AppendTrim(value.Width);
+            Append(", ");
+            AppendTrim(value.Height);
+            Append(")");
+            return this;
+        }
 
         public MgStringBuilder AppendLine(StringBuilder s)
         {
@@ -792,7 +1006,7 @@ namespace Microsoft.Xna.Framework
         public void OverWriteAt(int index, Char s)
         {
             CheckOverWriteCapacityAndLength(index, 1);
-                this.StringBuilder[index] = (char)(s);
+            this.StringBuilder[index] = (char)(s);
         }
         /// <summary>
         /// Functions to overwrite data at the index on
@@ -811,6 +1025,31 @@ namespace Microsoft.Xna.Framework
             CheckAppendCapacityAndLength(index, s.Length);
             for (int i = 0; i < s.Length; i++)
                 this.StringBuilder[i + index] = (char)(s[i]);
+        }
+
+        /// <summary>
+        /// This uses AppendAt to get around problems with garbage collections.
+        /// </summary>
+        public MgStringBuilder Insert(int index, char c)
+        {
+            AppendAt(index, c);
+            return this;
+        }
+        /// <summary>
+        /// This uses AppendAt to get around problems with garbage collections.
+        /// </summary>
+        public MgStringBuilder Insert(int index, StringBuilder s)
+        {
+            AppendAt(index, s);
+            return this;
+        }
+        /// <summary>
+        /// This uses AppendAt to get around problems with garbage collections.
+        /// </summary>
+        public MgStringBuilder Insert(int index, string s)
+        {
+            AppendAt(index, s);
+            return this;
         }
 
         /// <summary>
@@ -846,7 +1085,7 @@ namespace Microsoft.Xna.Framework
             CheckAppendCapacityAndLength(index, s.Length);
             // Now we will wind from back to front the current characters in the stringbuilder to make room for this append.
             // Yes this will be a expensive operation however this must be done if we want a proper AppendAt.
-            // Chunks or no chunks stringbuilders insert is piss poor.
+            // Chunks or no chunks stringbuilders insert is piss poor worse it creates garbage.
             int insertedsbLength = s.Length;
             for (int j = stringbuilder.Length - 1; j >= index + insertedsbLength; j--)
                 stringbuilder[j] = stringbuilder[j - insertedsbLength];
@@ -857,34 +1096,25 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        /// <summary>
-        /// This uses AppendAt to get around problems with garbage collections.
-        /// </summary>
-        public MgStringBuilder Insert(int index, char c)
-        {
-            AppendAt(index, c);
-            return this;
-        }
-        /// <summary>
-        /// This uses AppendAt to get around problems with garbage collections.
-        /// </summary>
-        public MgStringBuilder Insert(int index, StringBuilder s)
-        {
-            AppendAt(index, s);
-            return this;
-        }
-        /// <summary>
-        /// This uses AppendAt to get around problems with garbage collections.
-        /// </summary>
-        public MgStringBuilder Insert(int index, string s)
-        {
-            AppendAt(index, s);
-            return this;
-        }
-
         public MgStringBuilder Remove(int index, int length)
         {
             stringbuilder.Remove(index, length);
+            //Delete(index, length);
+            return this;
+        }
+
+        public MgStringBuilder Delete(int index, int length)
+        {
+            int len = stringbuilder.Length - length;
+            int j = length;
+            for (int i = index; i < len; i++)
+            {
+                if (i + j < len)
+                    stringbuilder[i] = stringbuilder[i + j];
+                else
+                    stringbuilder[i] = ' ';
+            }
+            stringbuilder.Length = len;
             return this;
         }
 
@@ -898,10 +1128,10 @@ namespace Microsoft.Xna.Framework
         }
         private void CheckOverWriteCapacityAndLength(int index, int lengthOfOverWrite)
         {
-            int dist = index + lengthOfOverWrite;
-            if (dist >= stringbuilder.Length)
+            int dist = (index + lengthOfOverWrite);
+            if (dist > stringbuilder.Length)
             {
-                int newLength = lengthOfOverWrite + stringbuilder.Length;
+                int newLength = index + lengthOfOverWrite;
                 int reqcapacity = (newLength + 1) - (stringbuilder.Capacity);
                 if (reqcapacity >= 0)
                     stringbuilder.Capacity = (stringbuilder.Capacity + reqcapacity + 64);
@@ -934,4 +1164,3 @@ namespace Microsoft.Xna.Framework
             return stringbuilder.ToString();
         }
     }
-}
