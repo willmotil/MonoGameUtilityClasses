@@ -73,6 +73,15 @@ The smooth normals are best used when the surface area has curvature for light r
 
 _____________________________________
 
+SpriteFontConverter.
+
+Takes a loaded SpriteFont and turns it into a class that can self load a instance of spritefont.
+This maybe useful in fairly specific case maybe as a default font if something goes wrong.
+The class that is created is saved as a text file with a .cs extention that can be pulled into visual studio.
+Load can be called on it to load the hardcoded spritefont instance.
+
+_____________________________________
+
 WinFullscreenModeChangeTestApp.
 
 In the Tests Folder is also a full screen testing class.
