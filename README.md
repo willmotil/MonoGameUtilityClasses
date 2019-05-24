@@ -81,9 +81,13 @@ _____________________________________
 SpriteFontConverter.
 
 Takes a loaded SpriteFont and turns it into a class that can self load a instance of spritefont.
-This maybe useful in fairly specific case maybe as a default font if something goes wrong.
-The class that is created is saved as a text file with a .cs extention that can be pulled into visual studio.
-Load can be called on it to load the hardcoded spritefont instance.
+This maybe useful maybe as a default font if something goes wrong.
+While im not too sure it's really useful at all it is a neet little class.
+It uses a simple RLE algorithm to compress the pixel data values so the texture is also in the resulting class file.
+
+The class that is created is saved as a text file with a .cs extention that can be pulled into a visual studio project.
+When you run the project after instatiating the class instance. 
+Load can be called on the instance to load the hardcoded spritefont.
 
 _____________________________________
 
