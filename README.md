@@ -34,6 +34,9 @@ This class bypasses numeric.ToString() which causes garbage collections in C# it
 The performance of inserting is not as great due to the work arounds that are done using the stringbuilder indexer.
 The class despite the size which is unrolled, is pretty performant otherwise, i use this myself constantly.
 
+If you were to rip out the Monogame specific Append Methods. (Vectors Rectangle Color)
+Then this class can be used as a standalone c# class. 
+
 _____________________________________
 
 MgFrameRate.
