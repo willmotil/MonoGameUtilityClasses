@@ -62,7 +62,7 @@ namespace Microsoft.Xna.Framework
         /// It is not as efficient as precomputing a altered stringbuilder then just drawing it.
         /// Effectively this can be considered at a cost of two drawstrings
         /// </summary>
-        public static void WordWrapTextWithinBounds(SpriteBatch sb, SpriteFont sf, MgStringBuilder stringText, Vector2 scale, Rectangle boundRect, Color color)
+        public static void DrawWordWrapTextWithinBounds(SpriteBatch sb, SpriteFont sf, MgStringBuilder stringText, Vector2 scale, Rectangle boundRect, Color color)
         {
             var sfc = SpriteFontItem.PrepFont(sf);
             text.Clear();
