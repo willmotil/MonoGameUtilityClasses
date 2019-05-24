@@ -36,6 +36,8 @@ The class despite the size which is unrolled, is pretty performant otherwise, i 
 
 If you were to rip out the Monogame specific Append Methods. (Vectors Rectangle Color)
 Then this class can be used as a standalone c# class. 
+In that case you should be aware that super high precision or extremely large values may cause garbage as i have limited the number of digits checked reasonably to trade off for perfomance before defaulting to just letting stringbuilder append.
+In practice this is doesn't happen as the number of digits set is pretty high, but it could.
 
 _____________________________________
 
