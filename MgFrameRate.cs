@@ -179,7 +179,7 @@ namespace Microsoft.Xna.Framework
             frames++;
         }
 
-        public void DrawVisualizations(Color fpsTextColor)
+        private void DrawVisualizations(Color fpsTextColor)
         {
             var dist = 600d;
             var vmsrheight = 4;
