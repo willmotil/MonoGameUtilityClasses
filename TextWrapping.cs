@@ -125,13 +125,14 @@ namespace Microsoft.Xna.Framework
                             {
                                 if (text[i + 1] != '\n') // if its not already a new line char
                                 {
-                                    text.AppendAt(i + 1, '\n'); // !!!  insert here is a gcollection problem... fixed
+                                    text.AppendAt(i + 1, '\n');
                                 }
                             }
                         }
                         else
                         {
-                            text.AppendAt(lastWordBreakCharPos + 1, '\n'); // !!!  insert here is a gcollection problem... fixed
+                            // handles the case were we cannot check the next char for a newline because it doesn't exist.
+                            text.AppendAt(lastWordBreakCharPos + 1, '\n');
                             if (text[lastWordBreakCharPos + 1] != ' ')
                             {
                                 offset = rewindOffset;
