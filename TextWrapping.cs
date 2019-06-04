@@ -321,7 +321,5 @@ namespace Microsoft.Xna.Framework
                 return lastSpriteFontItem;
             }
         }
-
     }
-
 }
