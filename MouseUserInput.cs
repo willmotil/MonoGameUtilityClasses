@@ -6,7 +6,7 @@ namespace Microsoft.Xna.Framework
     // mouse keyboard and text
 
     /// <summary>
-    /// Will Motill 2010 last updated 2018
+    /// Will Motil 2010 last updated 2018
     /// </summary>
     public static class UserMouseInput
     {
