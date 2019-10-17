@@ -16,15 +16,14 @@ namespace Microsoft.Xna.Framework//SpriteFontEditToClassSomethingOrOther
     //public void CreateOpenAssetClassTxtFile()
     //{
     //    // This is just for a new project its pretty cool
-
-    //    MakeMeAnAssetClassFile.Prefix = "Textures_";
+    //
     //    MakeMeAnAssetClassFile.FolderToAddToTheAssets(Content);
-
-    //    //MakeMeAnAssetClassFile.Prefix = "UiTextures_";
-    //    //MakeMeAnAssetClassFile.AssetType = "Texture2D";
+    //
+    //    // or
+    //
+    //    //MakeMeAnAssetClassFile.Prefix = "Ui_";
     //    //MakeMeAnAssetClassFile.FolderToAddToTheAssets("UiImages", Content);
-
-    //    MakeMeAnAssetClassFile.WriteTheFileAndDisplayIt();
+    //    //MakeMeAnAssetClassFile.WriteTheFileAndDisplayIt();
     //}
 
     /// <summary>
