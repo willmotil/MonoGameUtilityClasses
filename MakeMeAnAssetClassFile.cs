@@ -8,9 +8,9 @@ namespace Microsoft.Xna.Framework//SpriteFontEditToClassSomethingOrOther
 
     //// the file is used in game 1 as a method like so it will build a class that will list the content
     ///// <summary>
-    ///// Its new i just thought it up it needs a lot of work.
-    ///// I should just tree loop thru the entire content folder and sub folders.
-    ///// So it can create a class that loads up everything.
+    ///// It probably needs a bit more work but its not super important just a nicety.
+    ///// I should loop thru the content sub folders but for now i just have to specify each folder to load.
+    ///// Still it's pretty handy now and then.
     ///// </summary>
     //public void CreateOpenAssetClassTxtFile()
     //{
