@@ -10,7 +10,8 @@ namespace Microsoft.Xna.Framework//SpriteFontEditToClassSomethingOrOther
     ///// <summary>
     ///// It probably needs a bit more work but its not super important just a nicety.
     ///// I should loop thru the content sub folders but for now i just have to specify each folder to load.
-    ///// Still it's pretty handy now and then.
+    ///// Still it's pretty handy because when i use it i just have to type Assets. 
+    ///// It also puts copys of the types into lists
     ///// </summary>
     //public void CreateOpenAssetClassTxtFile()
     //{
